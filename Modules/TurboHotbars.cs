@@ -3,6 +3,8 @@ using System.Diagnostics;
 using System.Linq;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Hooking;
+using FFXIVClientStructs.FFXIV.Client.UI.Info;
+using FFXIVClientStructs.FFXIV.Component.GUI;
 using Hypostasis.Game.Structures;
 
 namespace ReAction.Modules;
@@ -15,6 +17,10 @@ public unsafe class TurboHotbars : PluginModule
         public bool LastFramePressed { get; set; } = false;
         public bool LastFrameHeld { get; set; } = false;
         public int RepeatDelay { get; set; } = 0;
+
+        public bool Toggled { get; set; } = false;
+        public bool CanToggle { get; set; } = false;
+        public Stopwatch TimeHeld { get; set; } = new();
 
         public bool IsReady => LastPress.IsRunning && LastPress.ElapsedMilliseconds >= RepeatDelay;
     }
@@ -48,29 +54,48 @@ public unsafe class TurboHotbars : PluginModule
 
         var isPressed = InputData.isInputIDPressed.Original(inputData, id);
         var isHeld = inputData->IsInputIDHeld(id);
-        var useHeld = info.IsReady && (ReAction.Config.EnableTurboHotbarsOutOfCombat || DalamudApi.Condition[ConditionFlag.InCombat]);
-        var ret = useHeld ? isHeld : (bool)isPressed;
+        if (isHeld && !info.TimeHeld.IsRunning)
+        {
+            info.TimeHeld.Restart();
+            info.CanToggle = true;
+        }
+        else if (!isHeld)
+        {
+            info.TimeHeld.Reset();
+        }
 
+        if (info.CanToggle && info.TimeHeld.Elapsed.TotalMilliseconds > 300)
+        {
+            info.CanToggle = false;
+            info.Toggled = !info.Toggled; 
+            DalamudApi.ChatGui.Print($"Input Key {id} toggled: {info.Toggled}");
+        }
+        var useHeld = info.IsReady && (ReAction.Config.EnableTurboHotbarsOutOfCombat || DalamudApi.Condition[ConditionFlag.InCombat]);
+        var useToggle = info.Toggled && useHeld;
+        var ret = useToggle ? true : useHeld ? isHeld : (bool)isPressed;
+        
         if (ret)
         {
             info.RepeatDelay = isPressed && ReAction.Config.InitialTurboHotbarInterval > 0 ? ReAction.Config.InitialTurboHotbarInterval : ReAction.Config.TurboHotbarInterval;
             info.LastPress.Restart();
         }
-        else if (isHeld != info.LastFrameHeld)
+        else if (isHeld != info.LastFrameHeld || useToggle)
         {
-            if (isHeld && isAnyTurboRunning)
+            if ((isHeld && isAnyTurboRunning) || useToggle)
             {
                 info.RepeatDelay = 200;
                 info.LastPress.Restart();
             }
             else
             {
+                if (!info.Toggled)
                 info.LastPress.Reset();
             }
         }
 
         info.LastFrameHeld = isHeld;
         info.LastFramePressed = isPressed;
+
         return ret;
     }
 
