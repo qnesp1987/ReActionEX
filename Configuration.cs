@@ -132,6 +132,7 @@ public class Configuration : PluginConfiguration, IPluginConfiguration
     public int TurboHotbarInterval = 400;
     public int InitialTurboHotbarInterval = 0;
     public bool EnableTurboHotbarsOutOfCombat = false;
+    public bool ToggleTurboMode = false;
     public bool EnableCameraRelativeDirectionals = false;
     public bool EnableUnassignableActions = false;
     public uint AutoFocusTargetID = 0;

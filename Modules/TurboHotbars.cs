@@ -54,24 +54,33 @@ public unsafe class TurboHotbars : PluginModule
 
         var isPressed = InputData.isInputIDPressed.Original(inputData, id);
         var isHeld = inputData->IsInputIDHeld(id);
-        if (isHeld && !info.TimeHeld.IsRunning)
+        if (ReAction.Config.ToggleTurboMode)
         {
-            info.TimeHeld.Restart();
-            info.CanToggle = true;
-        }
-        else if (!isHeld)
-        {
-            info.TimeHeld.Reset();
+            if (isHeld && !info.TimeHeld.IsRunning)
+            {
+                info.TimeHeld.Restart();
+                info.CanToggle = true;
+            }
+            else if (!isHeld)
+            {
+                info.TimeHeld.Reset();
+            }
+
+            if (info.CanToggle && info.TimeHeld.Elapsed.TotalMilliseconds > 300)
+            {
+                info.CanToggle = false;
+                info.Toggled = !info.Toggled;
+                if (info.Toggled)
+                {
+                    foreach (var i in inputIDInfos.Where(x => x.Key != id).Select(x => x.Value))
+                        i.Toggled = false;
+                }
+                DalamudApi.ChatGui.Print($"Input Key {id} toggled: {info.Toggled}");
+            }
         }
 
-        if (info.CanToggle && info.TimeHeld.Elapsed.TotalMilliseconds > 300)
-        {
-            info.CanToggle = false;
-            info.Toggled = !info.Toggled; 
-            DalamudApi.ChatGui.Print($"Input Key {id} toggled: {info.Toggled}");
-        }
         var useHeld = info.IsReady && (ReAction.Config.EnableTurboHotbarsOutOfCombat || DalamudApi.Condition[ConditionFlag.InCombat]);
-        var useToggle = info.Toggled && useHeld;
+        var useToggle = info.Toggled && useHeld && ReAction.Config.ToggleTurboMode;
         var ret = useToggle ? true : useHeld ? isHeld : (bool)isPressed;
         
         if (ret)

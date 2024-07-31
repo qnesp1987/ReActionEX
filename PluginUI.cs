@@ -396,8 +396,11 @@ public static class PluginUI
                 ImGuiEx.Prefix(false);
                 save |= ImGui.DragInt("Start Delay", ref ReAction.Config.InitialTurboHotbarInterval, 0.5f, 0, 1000, "%d ms");
 
-                ImGuiEx.Prefix(true);
+                ImGuiEx.Prefix(false);
                 save |= ImGui.Checkbox("Enable Out of Combat##Turbo", ref ReAction.Config.EnableTurboHotbarsOutOfCombat);
+
+                ImGuiEx.Prefix(true);
+                save |= ImGui.Checkbox($"Toggle Hold Mode", ref ReAction.Config.ToggleTurboMode);
             }
 
             save |= ImGui.Checkbox("Enable Instant Ground Targets", ref ReAction.Config.EnableInstantGroundTarget);
