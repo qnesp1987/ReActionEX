@@ -447,9 +447,13 @@ public static class PluginUI
 
             using (ImGuiEx.DisabledBlock.Begin(!ReAction.Config.EnableAutoTarget))
             {
-                ImGuiEx.Prefix(true);
+                ImGuiEx.Prefix(false);
                 save |= ImGui.Checkbox("Enable Auto Change Target", ref ReAction.Config.EnableAutoChangeTarget);
                 ImGuiEx.SetItemTooltip("Additionally targets the closest enemy when your main target is incorrect for a targeted attack.");
+
+                ImGuiEx.Prefix(true);
+                save |= ImGui.Checkbox("Ignore Camera", ref ReAction.Config.IgnoreCamera);
+                ImGuiEx.SetItemTooltip("Picks a target even if they're not in camera view.");
             }
 
             var _ = ReAction.Config.AutoFocusTargetID != 0;

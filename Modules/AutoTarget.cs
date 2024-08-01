@@ -45,7 +45,7 @@ public unsafe class AutoTarget : PluginModule
         {
             var posDiff = o.Position - p.Position;
             var angle = Math.Atan2(-posDiff.Z, posDiff.X) + Math.PI;
-            if (IsBetween(angle, minRotation, maxRotation) && (closest == null || closest.YalmDistanceX > o.YalmDistanceX))
+            if (IsBetween(angle, minRotation, maxRotation) && (closest == null || closest.YalmDistanceX > o.YalmDistanceX) || ReAction.Config.IgnoreCamera)
                 closest = o;
         }
 
