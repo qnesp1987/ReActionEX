@@ -5,11 +5,11 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Hypostasis.Game.Structures;
 using GameObject = FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject;
 
-namespace ReAction.Modules;
+namespace ReActionEx.Modules;
 
 public unsafe class AutoTarget : PluginModule
 {
-    public override bool ShouldEnable => ReAction.Config.EnableAutoTarget;
+    public override bool ShouldEnable => ReActionEx.Config.EnableAutoTarget;
 
     protected override bool Validate() => Game.fpGetGameObjectFromObjectID != null && ActionManager.canUseActionOnGameObject.IsValid;
     protected override void Enable() => ActionStackManager.PostActionStack += PostActionStack;
@@ -45,7 +45,7 @@ public unsafe class AutoTarget : PluginModule
         {
             var posDiff = o.Position - p.Position;
             var angle = Math.Atan2(-posDiff.Z, posDiff.X) + Math.PI;
-            if (IsBetween(angle, minRotation, maxRotation) && (closest == null || closest.YalmDistanceX > o.YalmDistanceX) || ReAction.Config.IgnoreCamera)
+            if (IsBetween(angle, minRotation, maxRotation) && (closest == null || closest.YalmDistanceX > o.YalmDistanceX) || ReActionEx.Config.IgnoreCamera)
                 closest = o;
         }
 
@@ -58,10 +58,10 @@ public unsafe class AutoTarget : PluginModule
         if (actionType != 1) return;
 
         var targetObject = DalamudApi.TargetManager.Target is { } t ? (GameObject*)t.Address : null;
-        if (!ReAction.Config.EnableAutoChangeTarget && targetObject != null
+        if (!ReActionEx.Config.EnableAutoChangeTarget && targetObject != null
             || targetObjectID != Game.InvalidObjectID && Game.GetGameObjectFromObjectID(targetObjectID) != targetObject
             || ActionManager.CanUseActionOnGameObject(adjustedActionID, targetObject)
-            || !ReAction.actionSheet.TryGetValue(adjustedActionID, out var a)
+            || !ReActionEx.actionSheet.TryGetValue(adjustedActionID, out var a)
             || !a.CanTargetHostile)
             return;
 

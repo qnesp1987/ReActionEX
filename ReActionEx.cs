@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Plugin;
 
-namespace ReAction;
+namespace ReActionEx;
 
-public class ReAction(IDalamudPluginInterface pluginInterface) : DalamudPlugin<Configuration>(pluginInterface), IDalamudPlugin
+public class ReActionEx(IDalamudPluginInterface pluginInterface) : DalamudPlugin<Configuration>(pluginInterface), IDalamudPlugin
 {
     public static Dictionary<uint, Lumina.Excel.GeneratedSheets.Action> actionSheet;
     public static Dictionary<uint, Lumina.Excel.GeneratedSheets.Action> mountActionsSheet;

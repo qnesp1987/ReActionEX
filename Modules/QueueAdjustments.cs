@@ -4,7 +4,7 @@ using FFXIVClientStructs.FFXIV.Client.Game;
 using Hypostasis.Game.Structures;
 using ActionManager = Hypostasis.Game.Structures.ActionManager;
 
-namespace ReAction.Modules;
+namespace ReActionEx.Modules;
 
 public unsafe class QueueAdjustments : PluginModule
 {
@@ -13,7 +13,7 @@ public unsafe class QueueAdjustments : PluginModule
     private static uint lastUsedActionID = 0;
     private static readonly Stopwatch lastUsedActionTimer = new();
 
-    public override bool ShouldEnable => ReAction.Config.EnableQueueAdjustments;
+    public override bool ShouldEnable => ReActionEx.Config.EnableQueueAdjustments;
 
     protected override bool Validate() => ActionManager.canQueueAction.IsValid && ActionManager.getAdjustedRecastTime.IsValid;
 
@@ -38,12 +38,12 @@ public unsafe class QueueAdjustments : PluginModule
         if (useType == 1 && tempQueue > 0)
             tempQueue = 0;
 
-        if (!ReAction.Config.EnableRequeuing
+        if (!ReActionEx.Config.EnableRequeuing
             || !actionManager->isQueued
             || GetRemainingActionRecast(actionManager, (uint)actionManager->CS.QueuedActionType, actionManager->CS.QueuedActionType == ActionType.Action
                     ? actionManager->CS.GetAdjustedActionId(actionManager->CS.QueuedActionId)
                     : actionManager->CS.QueuedActionId)
-                is { } remaining && remaining <= ReAction.Config.QueueLockThreshold)
+                is { } remaining && remaining <= ReActionEx.Config.QueueLockThreshold)
             return;
         actionManager->isQueued = false;
         isRequeuing = true;
@@ -92,18 +92,18 @@ public unsafe class QueueAdjustments : PluginModule
         {
             threshold = tempQueue;
         }
-        else if (ReAction.Config.EnableSlidecastQueuing && actionManager->isCasting)
+        else if (ReActionEx.Config.EnableSlidecastQueuing && actionManager->isCasting)
         {
             threshold = Math.Max(actionManager->gcdRecastTime - actionManager->castTime + 0.5f, 0.5f);
             tempQueue = threshold;
         }
         else
         {
-            threshold = (actionType == 1 ? actionManager->CS.GetAdjustedActionId(lastUsedActionID) == actionManager->CS.GetAdjustedActionId(actionID) : lastUsedActionID == actionID) && lastUsedActionTimer.Elapsed.TotalSeconds < ReAction.Config.QueueActionLockout
+            threshold = (actionType == 1 ? actionManager->CS.GetAdjustedActionId(lastUsedActionID) == actionManager->CS.GetAdjustedActionId(actionID) : lastUsedActionID == actionID) && lastUsedActionTimer.Elapsed.TotalSeconds < ReActionEx.Config.QueueActionLockout
                 ? 0
-                : ReAction.Config.EnableGCDAdjustedQueueThreshold
-                    ? ReAction.Config.QueueThreshold * ActionManager.GCDRecast / 2500f
-                    : ReAction.Config.QueueThreshold;
+                : ReActionEx.Config.EnableGCDAdjustedQueueThreshold
+                    ? ReActionEx.Config.QueueThreshold * ActionManager.GCDRecast / 2500f
+                    : ReActionEx.Config.QueueThreshold;
         }
 
         return GetRemainingActionRecast(actionManager, actionType, actionID) is { } remaining && remaining <= threshold;

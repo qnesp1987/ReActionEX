@@ -9,7 +9,7 @@ using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
 using Action = Lumina.Excel.GeneratedSheets.Action;
 
-namespace ReAction;
+namespace ReActionEx;
 
 public static class PluginUI
 {
@@ -26,7 +26,7 @@ public static class PluginUI
         set => isVisible = value;
     }
 
-    private static Configuration.ActionStack CurrentStack => 0 <= selectedStack && selectedStack < ReAction.Config.ActionStacks.Count ? ReAction.Config.ActionStacks[selectedStack] : null;
+    private static Configuration.ActionStack CurrentStack => 0 <= selectedStack && selectedStack < ReActionEx.Config.ActionStacks.Count ? ReActionEx.Config.ActionStacks[selectedStack] : null;
 
     public static void Draw()
     {
@@ -81,8 +81,8 @@ public static class PluginUI
 
         if (ImGui.Button(FontAwesomeIcon.Plus.ToIconString(), buttonSize))
         {
-            ReAction.Config.ActionStacks.Add(new() { Name = "New Stack" });
-            ReAction.Config.Save();
+            ReActionEx.Config.ActionStacks.Add(new() { Name = "New Stack" });
+            ReActionEx.Config.Save();
         }
 
         ImGui.SameLine();
@@ -100,8 +100,8 @@ public static class PluginUI
             try
             {
                 var stack = Configuration.ImportActionStack(ImGui.GetClipboardText());
-                ReAction.Config.ActionStacks.Add(stack);
-                ReAction.Config.Save();
+                ReActionEx.Config.ActionStacks.Add(stack);
+                ReActionEx.Config.Save();
             }
             catch (Exception e)
             {
@@ -117,12 +117,12 @@ public static class PluginUI
         if (ImGui.Button(FontAwesomeIcon.ArrowUp.ToIconString(), buttonSize) && hasSelectedStack)
         {
             var preset = CurrentStack;
-            ReAction.Config.ActionStacks.RemoveAt(selectedStack);
+            ReActionEx.Config.ActionStacks.RemoveAt(selectedStack);
 
             selectedStack = Math.Max(selectedStack - 1, 0);
 
-            ReAction.Config.ActionStacks.Insert(selectedStack, preset);
-            ReAction.Config.Save();
+            ReActionEx.Config.ActionStacks.Insert(selectedStack, preset);
+            ReActionEx.Config.Save();
         }
 
         ImGui.SameLine();
@@ -130,12 +130,12 @@ public static class PluginUI
         if (ImGui.Button(FontAwesomeIcon.ArrowDown.ToIconString(), buttonSize) && hasSelectedStack)
         {
             var preset = CurrentStack;
-            ReAction.Config.ActionStacks.RemoveAt(selectedStack);
+            ReActionEx.Config.ActionStacks.RemoveAt(selectedStack);
 
-            selectedStack = Math.Min(selectedStack + 1, ReAction.Config.ActionStacks.Count);
+            selectedStack = Math.Min(selectedStack + 1, ReActionEx.Config.ActionStacks.Count);
 
-            ReAction.Config.ActionStacks.Insert(selectedStack, preset);
-            ReAction.Config.Save();
+            ReActionEx.Config.ActionStacks.Insert(selectedStack, preset);
+            ReActionEx.Config.Save();
         }
 
         ImGui.PopFont();
@@ -144,11 +144,11 @@ public static class PluginUI
 
         if (ImGuiEx.DeleteConfirmationButton(buttonSize) && hasSelectedStack)
         {
-            ReAction.Config.ActionStacks.RemoveAt(selectedStack);
-            selectedStack = Math.Min(selectedStack, ReAction.Config.ActionStacks.Count - 1);
+            ReActionEx.Config.ActionStacks.RemoveAt(selectedStack);
+            selectedStack = Math.Min(selectedStack, ReActionEx.Config.ActionStacks.Count - 1);
             currentStack = CurrentStack;
             hasSelectedStack = currentStack != null;
-            ReAction.Config.Save();
+            ReActionEx.Config.Save();
         }
 
         var firstColumnWidth = 250 * ImGuiHelpers.GlobalScale;
@@ -156,11 +156,11 @@ public static class PluginUI
         ImGui.BeginChild("ReActionPresetList", new Vector2(firstColumnWidth, ImGui.GetContentRegionAvail().Y / 2), true);
         ImGui.PopStyleColor();
 
-        for (int i = 0; i < ReAction.Config.ActionStacks.Count; i++)
+        for (int i = 0; i < ReActionEx.Config.ActionStacks.Count; i++)
         {
             ImGui.PushID(i);
 
-            var preset = ReAction.Config.ActionStacks[i];
+            var preset = ReActionEx.Config.ActionStacks[i];
 
             if (ImGui.Selectable(preset.Name, selectedStack == i))
                 selectedStack = i;
@@ -212,7 +212,7 @@ public static class PluginUI
             "\n> 0.5s left on the cooldown, or < 0.5s since the last use (Charges / GCD).");
 
         if (save)
-            ReAction.Config.Save();
+            ReActionEx.Config.Save();
     }
 
     private static void DrawStackEditorLists(Configuration.ActionStack stack)
@@ -232,7 +232,7 @@ public static class PluginUI
     private static readonly ImGuiEx.ExcelSheetComboOptions<Action> actionComboOptions = new()
     {
         FormatRow = FormatActionRow,
-        FilteredSheet = DalamudApi.DataManager.GetExcelSheet<Action>()?.Take(3).Concat(ReAction.actionSheet.Select(kv => kv.Value))
+        FilteredSheet = DalamudApi.DataManager.GetExcelSheet<Action>()?.Take(3).Concat(ReActionEx.actionSheet.Select(kv => kv.Value))
     };
 
     private static readonly ImGuiEx.ExcelSheetPopupOptions<Action> actionPopupOptions = new()
@@ -264,12 +264,12 @@ public static class PluginUI
 
             ImGui.SetNextItemWidth(buttonWidth);
             if (ImGuiEx.ExcelSheetCombo("##Action", ref action.ID, actionComboOptions))
-                ReAction.Config.Save();
+                ReActionEx.Config.Save();
 
             ImGui.SameLine();
 
             if (ImGui.Checkbox("Adjust ID", ref action.UseAdjustedID))
-                ReAction.Config.Save();
+                ReActionEx.Config.Save();
             var detectedAdjustment = false;
             unsafe
             {
@@ -285,7 +285,7 @@ public static class PluginUI
 
             if (!ImGuiEx.DeleteConfirmationButton()) continue;
             stack.Actions.RemoveAt(i);
-            ReAction.Config.Save();
+            ReActionEx.Config.Save();
         }
 
         using (ImGuiEx.IndentBlock.Begin(buttonIndent))
@@ -294,7 +294,7 @@ public static class PluginUI
             if (ImGuiEx.ExcelSheetPopup("ReActionAddSkillsPopup", out var row, actionPopupOptions))
             {
                 stack.Actions.Add(new() { ID = row });
-                ReAction.Config.Save();
+                ReActionEx.Config.Save();
             }
         }
 
@@ -310,7 +310,7 @@ public static class PluginUI
     private static readonly ImGuiEx.ExcelSheetComboOptions<Action> actionOverrideComboOptions = new()
     {
         FormatRow = FormatOverrideActionRow,
-        FilteredSheet = DalamudApi.DataManager.GetExcelSheet<Action>()?.Take(1).Concat(ReAction.actionSheet.Select(kv => kv.Value))
+        FilteredSheet = DalamudApi.DataManager.GetExcelSheet<Action>()?.Take(1).Concat(ReActionEx.actionSheet.Select(kv => kv.Value))
     };
 
     private static void DrawItemEditor(Configuration.ActionStack stack)
@@ -335,19 +335,19 @@ public static class PluginUI
 
             ImGui.SetNextItemWidth(buttonWidth);
             if (DrawTargetTypeCombo("##TargetType", ref item.TargetID))
-                ReAction.Config.Save();
+                ReActionEx.Config.Save();
 
             ImGui.SameLine();
 
             ImGui.SetNextItemWidth(buttonWidth);
             if (ImGuiEx.ExcelSheetCombo("##ActionOverride", ref item.ID, actionOverrideComboOptions))
-                ReAction.Config.Save();
+                ReActionEx.Config.Save();
 
             ImGui.SameLine();
 
             if (!ImGuiEx.DeleteConfirmationButton()) continue;
             stack.Items.RemoveAt(i);
-            ReAction.Config.Save();
+            ReActionEx.Config.Save();
         }
 
         using (ImGuiEx.IndentBlock.Begin(buttonIndent))
@@ -355,7 +355,7 @@ public static class PluginUI
             if (ImGuiEx.FontButton(FontAwesomeIcon.Plus.ToIconString(), UiBuilder.IconFont, new Vector2(buttonWidth, 0)))
             {
                 stack.Items.Add(new());
-                ReAction.Config.Save();
+                ReActionEx.Config.Save();
             }
         }
 
@@ -385,47 +385,47 @@ public static class PluginUI
 
         if (ImGuiEx.BeginGroupBox("Actions", 0.5f))
         {
-            save |= ImGui.Checkbox("Enable Turbo Hotbar Keybinds", ref ReAction.Config.EnableTurboHotbars);
+            save |= ImGui.Checkbox("Enable Turbo Hotbar Keybinds", ref ReActionEx.Config.EnableTurboHotbars);
             ImGuiEx.SetItemTooltip("Allows you to hold hotbar keybinds (no controller support).\nWARNING: Text macros may be spammed.");
 
-            using (ImGuiEx.DisabledBlock.Begin(!ReAction.Config.EnableTurboHotbars))
+            using (ImGuiEx.DisabledBlock.Begin(!ReActionEx.Config.EnableTurboHotbars))
             {
                 ImGuiEx.Prefix(false);
-                save |= ImGui.DragInt("Interval", ref ReAction.Config.TurboHotbarInterval, 0.5f, 0, 1000, "%d ms");
+                save |= ImGui.DragInt("Interval", ref ReActionEx.Config.TurboHotbarInterval, 0.5f, 0, 1000, "%d ms");
 
                 ImGuiEx.Prefix(false);
-                save |= ImGui.DragInt("Start Delay", ref ReAction.Config.InitialTurboHotbarInterval, 0.5f, 0, 1000, "%d ms");
+                save |= ImGui.DragInt("Start Delay", ref ReActionEx.Config.InitialTurboHotbarInterval, 0.5f, 0, 1000, "%d ms");
 
                 ImGuiEx.Prefix(false);
-                save |= ImGui.Checkbox("Enable Out of Combat##Turbo", ref ReAction.Config.EnableTurboHotbarsOutOfCombat);
+                save |= ImGui.Checkbox("Enable Out of Combat##Turbo", ref ReActionEx.Config.EnableTurboHotbarsOutOfCombat);
 
                 ImGuiEx.Prefix(true);
-                save |= ImGui.Checkbox($"Toggle Hold Mode", ref ReAction.Config.ToggleTurboMode);
+                save |= ImGui.Checkbox($"Toggle Hold Mode", ref ReActionEx.Config.ToggleTurboMode);
             }
 
-            save |= ImGui.Checkbox("Enable Instant Ground Targets", ref ReAction.Config.EnableInstantGroundTarget);
+            save |= ImGui.Checkbox("Enable Instant Ground Targets", ref ReActionEx.Config.EnableInstantGroundTarget);
             ImGuiEx.SetItemTooltip("Ground targets will immediately place themselves at your current cursor position when a stack does not override the target.");
 
-            using (ImGuiEx.DisabledBlock.Begin(!ReAction.Config.EnableInstantGroundTarget))
+            using (ImGuiEx.DisabledBlock.Begin(!ReActionEx.Config.EnableInstantGroundTarget))
             {
                 ImGuiEx.Prefix(true);
-                save |= ImGui.Checkbox("Block Miscellaneous Ground Targets", ref ReAction.Config.EnableBlockMiscInstantGroundTargets);
+                save |= ImGui.Checkbox("Block Miscellaneous Ground Targets", ref ReActionEx.Config.EnableBlockMiscInstantGroundTargets);
                 ImGuiEx.SetItemTooltip("Disables the previous option from activating on actions such as placing pets.");
             }
 
-            save |= ImGui.Checkbox("Enable Enhanced Auto Face Target", ref ReAction.Config.EnableEnhancedAutoFaceTarget);
+            save |= ImGui.Checkbox("Enable Enhanced Auto Face Target", ref ReActionEx.Config.EnableEnhancedAutoFaceTarget);
             ImGuiEx.SetItemTooltip("Actions that don't require facing a target will no longer automatically face the target, such as healing.");
 
-            save |= ImGui.Checkbox("Enable Camera Relative Directional Actions", ref ReAction.Config.EnableCameraRelativeDirectionals);
+            save |= ImGui.Checkbox("Enable Camera Relative Directional Actions", ref ReActionEx.Config.EnableCameraRelativeDirectionals);
             ImGuiEx.SetItemTooltip("Changes channeled and directional actions, such as Passage of Arms or Surpanakha,\nto be relative to the direction your camera is facing, rather than your character.");
 
-            save |= ImGui.Checkbox("Enable Camera Relative Dashes", ref ReAction.Config.EnableCameraRelativeDashes);
+            save |= ImGui.Checkbox("Enable Camera Relative Dashes", ref ReActionEx.Config.EnableCameraRelativeDashes);
             ImGuiEx.SetItemTooltip("Changes dashes, such as En Avant and Elusive Jump, to be relative\nto the direction your camera is facing, rather than your character.");
 
-            using (ImGuiEx.DisabledBlock.Begin(!ReAction.Config.EnableCameraRelativeDashes))
+            using (ImGuiEx.DisabledBlock.Begin(!ReActionEx.Config.EnableCameraRelativeDashes))
             {
                 ImGuiEx.Prefix(true);
-                save |= ImGui.Checkbox("Block Backward Dashes", ref ReAction.Config.EnableNormalBackwardDashes);
+                save |= ImGui.Checkbox("Block Backward Dashes", ref ReActionEx.Config.EnableNormalBackwardDashes);
                 ImGuiEx.SetItemTooltip("Disables the previous option for any backward dash, such as Elusive Jump.");
             }
 
@@ -436,30 +436,30 @@ public static class PluginUI
 
         if (ImGuiEx.BeginGroupBox("Auto", 0.5f))
         {
-            save |= ImGui.Checkbox("Enable Auto Dismount", ref ReAction.Config.EnableAutoDismount);
+            save |= ImGui.Checkbox("Enable Auto Dismount", ref ReActionEx.Config.EnableAutoDismount);
             ImGuiEx.SetItemTooltip("Automatically dismounts when an action is used, prior to using the action.");
 
-            save |= ImGui.Checkbox("Enable Auto Cast Cancel", ref ReAction.Config.EnableAutoCastCancel);
+            save |= ImGui.Checkbox("Enable Auto Cast Cancel", ref ReActionEx.Config.EnableAutoCastCancel);
             ImGuiEx.SetItemTooltip("Automatically cancels casting when the target dies.");
 
-            save |= ImGui.Checkbox("Enable Auto Target", ref ReAction.Config.EnableAutoTarget);
+            save |= ImGui.Checkbox("Enable Auto Target", ref ReActionEx.Config.EnableAutoTarget);
             ImGuiEx.SetItemTooltip("Automatically targets the closest enemy when no target is specified for a targeted attack.");
 
-            using (ImGuiEx.DisabledBlock.Begin(!ReAction.Config.EnableAutoTarget))
+            using (ImGuiEx.DisabledBlock.Begin(!ReActionEx.Config.EnableAutoTarget))
             {
                 ImGuiEx.Prefix(false);
-                save |= ImGui.Checkbox("Enable Auto Change Target", ref ReAction.Config.EnableAutoChangeTarget);
+                save |= ImGui.Checkbox("Enable Auto Change Target", ref ReActionEx.Config.EnableAutoChangeTarget);
                 ImGuiEx.SetItemTooltip("Additionally targets the closest enemy when your main target is incorrect for a targeted attack.");
 
                 ImGuiEx.Prefix(true);
-                save |= ImGui.Checkbox("Ignore Camera", ref ReAction.Config.IgnoreCamera);
+                save |= ImGui.Checkbox("Ignore Camera", ref ReActionEx.Config.IgnoreCamera);
                 ImGuiEx.SetItemTooltip("Picks a target even if they're not in camera view.");
             }
 
-            var _ = ReAction.Config.AutoFocusTargetID != 0;
+            var _ = ReActionEx.Config.AutoFocusTargetID != 0;
             if (ImGui.Checkbox("Enable Auto Focus Target", ref _))
             {
-                ReAction.Config.AutoFocusTargetID = _ ? PronounManager.OrderedIDs.First() : 0;
+                ReActionEx.Config.AutoFocusTargetID = _ ? PronounManager.OrderedIDs.First() : 0;
                 save = true;
             }
             ImGuiEx.SetItemTooltip("Automatically sets the focus target to the selected target type when possible.");
@@ -467,24 +467,24 @@ public static class PluginUI
             using (ImGuiEx.DisabledBlock.Begin(!_))
             {
                 ImGuiEx.Prefix(false);
-                save |= DrawTargetTypeCombo("##AutoFocusTargetID", ref ReAction.Config.AutoFocusTargetID);
+                save |= DrawTargetTypeCombo("##AutoFocusTargetID", ref ReActionEx.Config.AutoFocusTargetID);
 
                 ImGuiEx.Prefix(true);
-                save |= ImGui.Checkbox("Enable Out of Combat##AutoFocusTarget", ref ReAction.Config.EnableAutoFocusTargetOutOfCombat);
+                save |= ImGui.Checkbox("Enable Out of Combat##AutoFocusTarget", ref ReActionEx.Config.EnableAutoFocusTargetOutOfCombat);
             }
 
-            save |= ImGui.Checkbox("Enable Auto Refocus Target", ref ReAction.Config.EnableAutoRefocusTarget);
+            save |= ImGui.Checkbox("Enable Auto Refocus Target", ref ReActionEx.Config.EnableAutoRefocusTarget);
             ImGuiEx.SetItemTooltip("While in duties, attempts to focus target whatever was previously focus targeted if the focus target is lost.");
 
-            save |= ImGui.Checkbox("Enable Auto Attacks on Spells", ref ReAction.Config.EnableSpellAutoAttacks);
+            save |= ImGui.Checkbox("Enable Auto Attacks on Spells", ref ReActionEx.Config.EnableSpellAutoAttacks);
             ImGuiEx.SetItemTooltip("Causes spells (and some other actions) to start using auto attacks just like weaponskills.");
 
-            using (ImGuiEx.DisabledBlock.Begin(!ReAction.Config.EnableSpellAutoAttacks))
+            using (ImGuiEx.DisabledBlock.Begin(!ReActionEx.Config.EnableSpellAutoAttacks))
             {
                 ImGuiEx.Prefix(true);
-                if (ImGui.Checkbox("Enable Out of Combat##SpellAutos", ref ReAction.Config.EnableSpellAutoAttacksOutOfCombat))
+                if (ImGui.Checkbox("Enable Out of Combat##SpellAutos", ref ReActionEx.Config.EnableSpellAutoAttacksOutOfCombat))
                 {
-                    if (ReAction.Config.EnableSpellAutoAttacksOutOfCombat)
+                    if (ReActionEx.Config.EnableSpellAutoAttacksOutOfCombat)
                         Game.spellAutoAttackPatch.Enable();
                     else
                         Game.spellAutoAttackPatch.Disable();
@@ -498,51 +498,51 @@ public static class PluginUI
 
         if (ImGuiEx.BeginGroupBox("Queuing", 0.5f))
         {
-            if (ImGui.Checkbox("Enable Ground Target Queuing", ref ReAction.Config.EnableGroundTargetQueuing))
+            if (ImGui.Checkbox("Enable Ground Target Queuing", ref ReActionEx.Config.EnableGroundTargetQueuing))
             {
                 Game.queueGroundTargetsPatch.Toggle();
                 save = true;
             }
             ImGuiEx.SetItemTooltip("Ground targets will insert themselves into the action queue,\ncausing them to immediately be used as soon as possible, like other OGCDs.");
 
-            save |= ImGui.Checkbox("Enable Queuing More", ref ReAction.Config.EnableQueuingMore);
+            save |= ImGui.Checkbox("Enable Queuing More", ref ReActionEx.Config.EnableQueuingMore);
             ImGuiEx.SetItemTooltip("Allows sprint, items and LBs to be queued.");
 
-            save |= ImGui.Checkbox("Always Queue Macros", ref ReAction.Config.EnableMacroQueue);
+            save |= ImGui.Checkbox("Always Queue Macros", ref ReActionEx.Config.EnableMacroQueue);
             ImGuiEx.SetItemTooltip("All macros will behave as if /macroqueue was used.");
 
-            save |= ImGui.Checkbox("Enable Queue Adjustments (BETA)", ref ReAction.Config.EnableQueueAdjustments);
+            save |= ImGui.Checkbox("Enable Queue Adjustments (BETA)", ref ReActionEx.Config.EnableQueueAdjustments);
             ImGuiEx.SetItemTooltip("Changes how the game handles queuing actions.\nThis is a beta feature, please let me know if anything is not working as expected.");
 
-            using (ImGuiEx.DisabledBlock.Begin(!ReAction.Config.EnableQueueAdjustments))
+            using (ImGuiEx.DisabledBlock.Begin(!ReActionEx.Config.EnableQueueAdjustments))
             using (ImGuiEx.ItemWidthBlock.Begin(ImGui.CalcItemWidth() / 2))
             {
                 ImGuiEx.Prefix(false);
-                save |= ImGui.Checkbox("##Enable GCD Adjusted Threshold", ref ReAction.Config.EnableGCDAdjustedQueueThreshold);
+                save |= ImGui.Checkbox("##Enable GCD Adjusted Threshold", ref ReActionEx.Config.EnableGCDAdjustedQueueThreshold);
                 ImGuiEx.SetItemTooltip("Modifies the threshold based on the current GCD.");
 
                 ImGui.SameLine();
-                save |= ImGui.SliderFloat("Queue Threshold", ref ReAction.Config.QueueThreshold, 0.1f, 2.5f, "%.1f");
+                save |= ImGui.SliderFloat("Queue Threshold", ref ReActionEx.Config.QueueThreshold, 0.1f, 2.5f, "%.1f");
                 ImGuiEx.SetItemTooltip("Time remaining on an action's cooldown to allow the game\nto queue up the next one when pressed early. Default: 0.5." +
-                    (ReAction.Config.EnableGCDAdjustedQueueThreshold ? $"\nGCD Adjusted Threshold: {ReAction.Config.QueueThreshold * ActionManager.GCDRecast / 2500f}" : string.Empty));
+                    (ReActionEx.Config.EnableGCDAdjustedQueueThreshold ? $"\nGCD Adjusted Threshold: {ReActionEx.Config.QueueThreshold * ActionManager.GCDRecast / 2500f}" : string.Empty));
 
                 ImGui.BeginGroup();
                 ImGuiEx.Prefix(false);
-                save |= ImGui.Checkbox("##Enable Requeuing", ref ReAction.Config.EnableRequeuing);
-                using (ImGuiEx.DisabledBlock.Begin(!ReAction.Config.EnableRequeuing))
+                save |= ImGui.Checkbox("##Enable Requeuing", ref ReActionEx.Config.EnableRequeuing);
+                using (ImGuiEx.DisabledBlock.Begin(!ReActionEx.Config.EnableRequeuing))
                 {
                     ImGui.SameLine();
-                    save |= ImGui.SliderFloat("Queue Lock Threshold", ref ReAction.Config.QueueLockThreshold, 0.1f, 2.5f, "%.1f");
+                    save |= ImGui.SliderFloat("Queue Lock Threshold", ref ReActionEx.Config.QueueLockThreshold, 0.1f, 2.5f, "%.1f");
                 }
                 ImGui.EndGroup();
                 ImGuiEx.SetItemTooltip("When enabled, allows requeuing until the queued action's cooldown is below this value.");
 
                 ImGuiEx.Prefix(false);
-                save |= ImGui.SliderFloat("Action Lockout", ref ReAction.Config.QueueActionLockout, 0, 2.5f, "%.1f");
+                save |= ImGui.SliderFloat("Action Lockout", ref ReActionEx.Config.QueueActionLockout, 0, 2.5f, "%.1f");
                 ImGuiEx.SetItemTooltip("Blocks the same action from being queued again if it has been on cooldown for less than this value.");
 
                 ImGuiEx.Prefix(true);
-                save |= ImGui.Checkbox("Enable GCD Slidecast Queuing", ref ReAction.Config.EnableSlidecastQueuing);
+                save |= ImGui.Checkbox("Enable GCD Slidecast Queuing", ref ReActionEx.Config.EnableSlidecastQueuing);
                 ImGuiEx.SetItemTooltip("Allows the next GCD to be queued during the last 0.5s of a GCD cast.");
             }
 
@@ -553,25 +553,25 @@ public static class PluginUI
 
         if (ImGuiEx.BeginGroupBox("Sunderings", 0.5f))
         {
-            save |= ImGui.Checkbox("Sunder Meditation", ref ReAction.Config.EnableDecomboMeditation);
+            save |= ImGui.Checkbox("Sunder Meditation", ref ReActionEx.Config.EnableDecomboMeditation);
             ImGuiEx.SetItemTooltip("Removes the Meditation <-> Steel Peak / Forbidden Chakra combo. You will need to use\nthe hotbar feature below to place one of them on your hotbar in order to use them again.\nSteel Peak ID: 25761\nForbidden Chakra ID: 3547");
 
-            save |= ImGui.Checkbox("Sunder Bunshin", ref ReAction.Config.EnableDecomboBunshin);
+            save |= ImGui.Checkbox("Sunder Bunshin", ref ReActionEx.Config.EnableDecomboBunshin);
             ImGuiEx.SetItemTooltip("Removes the Bunshin <-> Phantom Kamaitachi combo. You will need to use\nthe hotbar feature below to place it on your hotbar in order to use it again.\nPhantom Kamaitachi ID: 25774");
 
-            save |= ImGui.Checkbox("Sunder Wanderer's Minuet", ref ReAction.Config.EnableDecomboWanderersMinuet);
+            save |= ImGui.Checkbox("Sunder Wanderer's Minuet", ref ReActionEx.Config.EnableDecomboWanderersMinuet);
             ImGuiEx.SetItemTooltip("Removes the Wanderer's Minuet -> Pitch Perfect combo. You will need to use\nthe hotbar feature below to place it on your hotbar in order to use it again.\nPitch Perfect ID: 7404");
 
-            save |= ImGui.Checkbox("Sunder Liturgy of the Bell", ref ReAction.Config.EnableDecomboLiturgy);
+            save |= ImGui.Checkbox("Sunder Liturgy of the Bell", ref ReActionEx.Config.EnableDecomboLiturgy);
             ImGuiEx.SetItemTooltip("Removes the Liturgy of the Bell combo. You will need to use the hotbar\nfeature below to place it on your hotbar in order to use it again.\nLiturgy of the Bell (Detonate) ID: 28509");
 
-            save |= ImGui.Checkbox("Sunder Earthly Star", ref ReAction.Config.EnableDecomboEarthlyStar);
+            save |= ImGui.Checkbox("Sunder Earthly Star", ref ReActionEx.Config.EnableDecomboEarthlyStar);
             ImGuiEx.SetItemTooltip("Removes the Earthly Star combo. You will need to use the hotbar\nfeature below to place it on your hotbar in order to use it again.\nStellar Detonation ID: 8324");
 
-            save |= ImGui.Checkbox("Sunder Minor Arcana", ref ReAction.Config.EnableDecomboMinorArcana);
+            save |= ImGui.Checkbox("Sunder Minor Arcana", ref ReActionEx.Config.EnableDecomboMinorArcana);
             ImGuiEx.SetItemTooltip("Removes the Minor Arcana -> Lord / Lady of Crowns combo. You will need to use the\nhotbar feature below to place one of them on your hotbar in order to use them again.\nLord of Crowns ID: 7444\nLady of Crowns ID: 7445");
 
-            save |= ImGui.Checkbox("Sunder Geirskogul", ref ReAction.Config.EnableDecomboGeirskogul);
+            save |= ImGui.Checkbox("Sunder Geirskogul", ref ReActionEx.Config.EnableDecomboGeirskogul);
             ImGuiEx.SetItemTooltip("Removes the Geirskogul -> Nastrond combo. You will need to use the\nhotbar feature below to place it on your hotbar in order to use it again.\nNastrond ID: 7400");
 
             ImGuiEx.EndGroupBox();
@@ -579,10 +579,10 @@ public static class PluginUI
 
         if (ImGuiEx.BeginGroupBox("Misc", 0.5f))
         {
-            save |= ImGui.Checkbox("Enable Frame Alignment", ref ReAction.Config.EnableFrameAlignment);
+            save |= ImGui.Checkbox("Enable Frame Alignment", ref ReActionEx.Config.EnableFrameAlignment);
             ImGuiEx.SetItemTooltip("Aligns the game's frames with the GCD and animation lock.\nNote: This option will cause an almost unnoticeable stutter when either of these timers ends.");
 
-            if (ImGui.Checkbox("Enable Decimal Waits (Fractionality)", ref ReAction.Config.EnableFractionality))
+            if (ImGui.Checkbox("Enable Decimal Waits (Fractionality)", ref ReActionEx.Config.EnableFractionality))
             {
                 Game.waitSyntaxDecimalPatch.Toggle();
                 Game.waitCommandDecimalPatch.Toggle();
@@ -590,14 +590,14 @@ public static class PluginUI
             }
             ImGuiEx.SetItemTooltip("Allows decimals in wait commands and removes the 60 seconds cap (e.g. <wait.0.5> or /wait 0.5).");
 
-            if (ImGui.Checkbox("Enable Unassignable Actions in Commands", ref ReAction.Config.EnableUnassignableActions))
+            if (ImGui.Checkbox("Enable Unassignable Actions in Commands", ref ReActionEx.Config.EnableUnassignableActions))
             {
                 Game.allowUnassignableActionsPatch.Toggle();
                 save = true;
             }
             ImGuiEx.SetItemTooltip("Allows using normally unavailable actions in \"/ac\", such as The Forbidden Chakra or Stellar Detonation.");
 
-            save |= ImGui.Checkbox("Enable Player Names in Commands", ref ReAction.Config.EnablePlayerNamesInCommands);
+            save |= ImGui.Checkbox("Enable Player Names in Commands", ref ReActionEx.Config.EnablePlayerNamesInCommands);
             ImGuiEx.SetItemTooltip("Allows using the \"First Last@World\" syntax for any command requiring a target.");
 
             ImGuiEx.EndGroupBox();
@@ -638,7 +638,7 @@ public static class PluginUI
         }
 
         if (save)
-            ReAction.Config.Save();
+            ReActionEx.Config.Save();
     }
 
     public static void DrawHotbarIDInput(RaptureHotbarModule.HotbarSlotType slotType)

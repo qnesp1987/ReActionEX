@@ -1,7 +1,7 @@
 using Dalamud.Hooking;
 using FFXIVClientStructs.FFXIV.Client.Game;
 
-namespace ReAction.Modules;
+namespace ReActionEx.Modules;
 
 public unsafe class Decombos : PluginModule
 {
@@ -49,33 +49,33 @@ public unsafe class Decombos : PluginModule
 
         switch (actionID)
         {
-            case ActionID.Meditation when ReAction.Config.EnableDecomboMeditation:
+            case ActionID.Meditation when ReActionEx.Config.EnableDecomboMeditation:
                 return actionID;
-            case ActionID.The_Forbidden_Chakra when ReAction.Config.EnableDecomboMeditation:
-            case ActionID.Steel_Peak when ReAction.Config.EnableDecomboMeditation:
+            case ActionID.The_Forbidden_Chakra when ReActionEx.Config.EnableDecomboMeditation:
+            case ActionID.Steel_Peak when ReActionEx.Config.EnableDecomboMeditation:
                 return ret != ActionID.Meditation ? ret : actionID;
 
-            case ActionID.Bunshin when ReAction.Config.EnableDecomboBunshin:
-            case ActionID.Phantom_Kamaitachi when ReAction.Config.EnableDecomboBunshin:
+            case ActionID.Bunshin when ReActionEx.Config.EnableDecomboBunshin:
+            case ActionID.Phantom_Kamaitachi when ReActionEx.Config.EnableDecomboBunshin:
                 return actionID;
 
-            case ActionID.The_Wanderers_Minuet when ReAction.Config.EnableDecomboWanderersMinuet:
+            case ActionID.The_Wanderers_Minuet when ReActionEx.Config.EnableDecomboWanderersMinuet:
                 return actionID;
 
-            case ActionID.Liturgy_of_the_Bell when ReAction.Config.EnableDecomboLiturgy:
+            case ActionID.Liturgy_of_the_Bell when ReActionEx.Config.EnableDecomboLiturgy:
                 return actionID;
 
-            case ActionID.Earthly_Star when ReAction.Config.EnableDecomboEarthlyStar:
+            case ActionID.Earthly_Star when ReActionEx.Config.EnableDecomboEarthlyStar:
                 return actionID;
 
-            case ActionID.Minor_Arcana when ReAction.Config.EnableDecomboMinorArcana:
+            case ActionID.Minor_Arcana when ReActionEx.Config.EnableDecomboMinorArcana:
                 return actionID;
-            case ActionID.Lord_of_Crowns when ReAction.Config.EnableDecomboMinorArcana:
-            case ActionID.Lady_of_Crowns when ReAction.Config.EnableDecomboMinorArcana:
+            case ActionID.Lord_of_Crowns when ReActionEx.Config.EnableDecomboMinorArcana:
+            case ActionID.Lady_of_Crowns when ReActionEx.Config.EnableDecomboMinorArcana:
                 var minorArcanaAdjustment = GetAdjustedActionIdHook.Original(actionManager, ActionID.Minor_Arcana);
                 return minorArcanaAdjustment != ActionID.Minor_Arcana ? minorArcanaAdjustment : actionID;
 
-            case ActionID.Geirskogul when ReAction.Config.EnableDecomboGeirskogul:
+            case ActionID.Geirskogul when ReActionEx.Config.EnableDecomboGeirskogul:
                 return actionID;
 
             default:

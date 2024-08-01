@@ -4,7 +4,7 @@ using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using ActionManager = Hypostasis.Game.Structures.ActionManager;
 
-namespace ReAction.Modules;
+namespace ReActionEx.Modules;
 
 public unsafe class AutoDismount : PluginModule
 {
@@ -12,7 +12,7 @@ public unsafe class AutoDismount : PluginModule
     private static (uint actionType, uint actionID, ulong targetObjectID, uint useType, int pvp) queuedMountAction;
     private static readonly Stopwatch mountActionTimer = new();
 
-    public override bool ShouldEnable => ReAction.Config.EnableAutoDismount;
+    public override bool ShouldEnable => ReActionEx.Config.EnableAutoDismount;
 
     protected override void Enable()
     {
@@ -63,7 +63,7 @@ public unsafe class AutoDismount : PluginModule
     private static bool CheckAction(uint actionType, uint actionID, uint adjustedActionID) =>
         actionType switch
         {
-            1 when !ReAction.mountActionsSheet.ContainsKey(adjustedActionID) && actionID is not (5 or 6) => true, // Block mount actions, Teleport and Return
+            1 when !ReActionEx.mountActionsSheet.ContainsKey(adjustedActionID) && actionID is not (5 or 6) => true, // Block mount actions, Teleport and Return
             5 when actionID is 3 or 4 => true, // Allow LB and Sprint
             _ => false
         };

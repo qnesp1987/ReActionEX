@@ -1,6 +1,6 @@
 using Hypostasis.Game.Structures;
 
-namespace ReAction.Modules;
+namespace ReActionEx.Modules;
 
 public class ActionStacks : PluginModule
 {

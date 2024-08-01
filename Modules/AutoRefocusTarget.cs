@@ -1,11 +1,11 @@
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Plugin.Services;
 
-namespace ReAction.Modules;
+namespace ReActionEx.Modules;
 
 public class AutoRefocusTarget : PluginModule
 {
-    public override bool ShouldEnable => ReAction.Config.EnableAutoRefocusTarget;
+    public override bool ShouldEnable => ReActionEx.Config.EnableAutoRefocusTarget;
 
     protected override bool Validate() => Game.SetFocusTargetByObjectIDHook is { Address: not 0 };
     protected override void Enable() => DalamudApi.Framework.Update += Update;

@@ -2,13 +2,13 @@ using System;
 using System.Diagnostics;
 using Dalamud.Plugin.Services;
 
-namespace ReAction.Modules;
+namespace ReActionEx.Modules;
 
 public unsafe class FrameAlignment : PluginModule
 {
     private static readonly Stopwatch timer = new();
 
-    public override bool ShouldEnable => ReAction.Config.EnableFrameAlignment;
+    public override bool ShouldEnable => ReActionEx.Config.EnableFrameAlignment;
 
     protected override void Enable() => DalamudApi.Framework.Update += Update;
 

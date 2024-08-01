@@ -7,7 +7,7 @@ using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using Lumina.Excel.GeneratedSheets;
 
-namespace ReAction;
+namespace ReActionEx;
 
 public static unsafe class PronounHelpers
 {

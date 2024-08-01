@@ -9,20 +9,20 @@ using Hypostasis.Game.Structures;
 using Camera = FFXIVClientStructs.FFXIV.Client.Game.Camera;
 using GameObject = FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject;
 
-namespace ReAction;
+namespace ReActionEx;
 
 [HypostasisInjection]
 public static unsafe class Game
 {
     public const uint InvalidObjectID = 0xE0000000;
 
-    public static readonly AsmPatch queueGroundTargetsPatch = new("75 49 44 8B C7 41 8B D5", [ 0x90, 0x90 ], ReAction.Config.EnableGroundTargetQueuing);
+    public static readonly AsmPatch queueGroundTargetsPatch = new("75 49 44 8B C7 41 8B D5", [ 0x90, 0x90 ], ReActionEx.Config.EnableGroundTargetQueuing);
 
     // test byte ptr [rsi+3A], 04
     // jnz 7Ah
-    public static readonly AsmPatch spellAutoAttackPatch = new("41 B0 01 44 0F B6 CA 41 0F B6 D0 E9 ?? ?? ?? ?? 41 B0 01", [ 0xF6, 0x46, 0x3A, 0x04, 0x0F, 0x85, 0x7A, 0x00, 0x00, 0x00, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 ], ReAction.Config.EnableSpellAutoAttacks && ReAction.Config.EnableSpellAutoAttacksOutOfCombat);
+    public static readonly AsmPatch spellAutoAttackPatch = new("41 B0 01 44 0F B6 CA 41 0F B6 D0 E9 ?? ?? ?? ?? 41 B0 01", [ 0xF6, 0x46, 0x3A, 0x04, 0x0F, 0x85, 0x7A, 0x00, 0x00, 0x00, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 ], ReActionEx.Config.EnableSpellAutoAttacks && ReActionEx.Config.EnableSpellAutoAttacksOutOfCombat);
 
-    public static readonly AsmPatch allowUnassignableActionsPatch = new("75 07 32 C0 E9 ?? ?? ?? ?? 48 8B 00", [ 0xEB ], ReAction.Config.EnableUnassignableActions);
+    public static readonly AsmPatch allowUnassignableActionsPatch = new("75 07 32 C0 E9 ?? ?? ?? ?? 48 8B 00", [ 0xEB ], ReActionEx.Config.EnableUnassignableActions);
 
     // mov eax, 1000f
     // movd xmm1, eax
@@ -37,7 +37,7 @@ public static unsafe class Game
             0x90,
             0x90, 0x90, 0x90, 0x90, 0x90
         ],
-        ReAction.Config.EnableFractionality);
+        ReActionEx.Config.EnableFractionality);
 
     // mov eax, 1000f
     // movd xmm0, eax
@@ -56,9 +56,9 @@ public static unsafe class Game
             0x90, 0x90, 0x90, 0x90, 0x90, 0x90,
             0xEB // 0x1F
         ],
-        ReAction.Config.EnableFractionality);
+        ReActionEx.Config.EnableFractionality);
 
-    public static readonly AsmPatch queueACCommandPatch = new("02 00 00 00 41 8B D7 89", [ 0x64 ], ReAction.Config.EnableMacroQueue);
+    public static readonly AsmPatch queueACCommandPatch = new("02 00 00 00 41 8B D7 89", [ 0x64 ], ReActionEx.Config.EnableMacroQueue);
 
     public static ulong GetObjectID(GameObject* o)
     {
@@ -116,7 +116,7 @@ public static unsafe class Game
     public static Hook<SetFocusTargetByObjectIDDelegate> SetFocusTargetByObjectIDHook;
     private static void SetFocusTargetByObjectIDDetour(TargetSystem* targetSystem, ulong objectID)
     {
-        if (ReAction.Config.AutoFocusTargetID == 0 || DalamudApi.TargetManager.FocusTarget == null || DalamudApi.TargetManager.FocusTarget.Equals(DalamudApi.ObjectTable.FirstOrDefault(o => o.DataId == FocusTargetInfo.DataID && o.Name.ToString() == FocusTargetInfo.Name)))
+        if (ReActionEx.Config.AutoFocusTargetID == 0 || DalamudApi.TargetManager.FocusTarget == null || DalamudApi.TargetManager.FocusTarget.Equals(DalamudApi.ObjectTable.FirstOrDefault(o => o.DataId == FocusTargetInfo.DataID && o.Name.ToString() == FocusTargetInfo.Name)))
             SetFocusTargetByObjectIDHook.Original(targetSystem, objectID);
         FocusTargetInfo = DalamudApi.TargetManager.FocusTarget is { } o ? (o.Name.ToString(), o.DataId) : (null, 0);
     }
@@ -131,7 +131,7 @@ public static unsafe class Game
     [HypostasisSignatureInjection("E8 ?? ?? ?? ?? 48 8B 5C 24 30 EB 0C")]
     private static Hook<ResolvePlaceholderDelegate> ResolvePlaceholderHook;
     private static GameObject* ResolvePlaceholderDetour(PronounModule* pronounModule, string text, Bool defaultToTarget, Bool allowPlayerNames) =>
-        ResolvePlaceholderHook.Original(pronounModule, text, defaultToTarget, allowPlayerNames || ReAction.Config.EnablePlayerNamesInCommands);
+        ResolvePlaceholderHook.Original(pronounModule, text, defaultToTarget, allowPlayerNames || ReActionEx.Config.EnablePlayerNamesInCommands);
 
     private static GameObject* GetGameObjectFromPronounIDDetour(PronounModule* pronounModule, PronounID pronounID)
     {
@@ -153,7 +153,7 @@ public static unsafe class Game
     private static Hook<ExecuteMacroDelegate> ExecuteMacroHook;
     private static void ExecuteMacroDetour(RaptureShellModule* raptureShellModule, RaptureMacroModule.Macro* macro)
     {
-        if (ReAction.Config.EnableMacroQueue)
+        if (ReActionEx.Config.EnableMacroQueue)
             queueACCommandPatch.Enable();
         else
             queueACCommandPatch.Disable();

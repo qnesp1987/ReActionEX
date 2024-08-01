@@ -4,7 +4,7 @@ using Dalamud.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace ReAction;
+namespace ReActionEx;
 
 public class Configuration : PluginConfiguration, IPluginConfiguration
 {

@@ -1,13 +1,13 @@
 using Dalamud.Plugin.Services;
 using Hypostasis.Game.Structures;
 
-namespace ReAction.Modules;
+namespace ReActionEx.Modules;
 
 public unsafe class AutoCastCancel : PluginModule
 {
     private static bool canceledCast = false;
 
-    public override bool ShouldEnable => ReAction.Config.EnableAutoCastCancel;
+    public override bool ShouldEnable => ReActionEx.Config.EnableAutoCastCancel;
 
     protected override bool Validate() => Game.fpGetGameObjectFromObjectID != null && ActionManager.canUseActionOnGameObject.IsValid;
     protected override void Enable() => DalamudApi.Framework.Update += Update;
@@ -39,7 +39,7 @@ public unsafe class AutoCastCancel : PluginModule
     private static bool CheckAction(uint actionType, uint actionID)
     {
         if (actionType != 1) return false; // Block non normal actions
-        if (!ReAction.actionSheet.TryGetValue(actionID, out var a)) return false;
+        if (!ReActionEx.actionSheet.TryGetValue(actionID, out var a)) return false;
         return !a.TargetArea; // Block ground targets
     }
 }

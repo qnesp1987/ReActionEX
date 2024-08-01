@@ -1,0 +1,17 @@
+﻿{
+  "Author": "UnknownX, Taurenkey",
+  "Name": "ReActionEx",
+  "Punchline": "QoL for the battle system.",
+  "Description": "Improves aspects of the battle system with action stacks (like MOAction) and various QoL settings. Now with more devious features.",
+  "IconUrl": "",
+  "ImageUrls": [
+    ""
+  ],
+  "RepoUrl": "https://puni.sh/api/repository/taurenkey",
+  "CategoryTags": [
+    "jobs"
+  ],
+  "InternalName": "ReAction",
+  "AssemblyVersion": "1.0.0.0",
+  "Changelog": ""
+}

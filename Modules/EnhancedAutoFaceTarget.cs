@@ -1,7 +1,7 @@
 using Hypostasis.Game.Structures;
 using Lumina.Excel.GeneratedSheets;
 
-namespace ReAction.Modules;
+namespace ReActionEx.Modules;
 
 public unsafe class EnhancedAutoFaceTarget : PluginModule
 {
@@ -10,7 +10,7 @@ public unsafe class EnhancedAutoFaceTarget : PluginModule
     // jz -> jmp ??
     private static readonly AsmPatch removeAutoFaceGroundTargetPatch = new("80 7E 33 06 74 21 48 8D 8F", [ 0x90, 0x90, 0x90, 0x90, 0xEB ]);
 
-    public override bool ShouldEnable => ReAction.Config.EnableEnhancedAutoFaceTarget;
+    public override bool ShouldEnable => ReActionEx.Config.EnableEnhancedAutoFaceTarget;
 
     protected override bool Validate() => removeAutoFaceTargetPatch.IsValid;
 

@@ -4,7 +4,7 @@ using ActionType = FFXIVClientStructs.FFXIV.Client.Game.ActionType;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using Hypostasis.Game.Structures;
 
-namespace ReAction;
+namespace ReActionEx;
 
 public static unsafe class ActionStackManager
 {
@@ -44,12 +44,12 @@ public static unsafe class ActionStackManager
                 return ret.Value;
 
             var succeeded = false;
-            if (PluginModuleManager.GetModule<Modules.ActionStacks>().IsValid && tryStack && actionType == 1 && ReAction.actionSheet.TryGetValue(adjustedActionID, out var a))
+            if (PluginModuleManager.GetModule<Modules.ActionStacks>().IsValid && tryStack && actionType == 1 && ReActionEx.actionSheet.TryGetValue(adjustedActionID, out var a))
             {
                 DalamudApi.LogDebug("Checking stacks");
 
                 var modifierKeys = GetModifierKeys();
-                foreach (var stack in ReAction.Config.ActionStacks)
+                foreach (var stack in ReActionEx.Config.ActionStacks)
                 {
                     var exactMatch = (stack.ModifierKeys & 8) != 0;
                     if (exactMatch ? stack.ModifierKeys != modifierKeys : (stack.ModifierKeys & modifierKeys) != stack.ModifierKeys) continue;
@@ -86,7 +86,7 @@ public static unsafe class ActionStackManager
 
             PostUseAction?.Invoke(actionManager, actionType, actionID, adjustedActionID, targetObjectID, param, useType, pvp, ret!.Value);
 
-            if (succeeded && ReAction.actionSheet[adjustedActionID].TargetArea)
+            if (succeeded && ReActionEx.actionSheet[adjustedActionID].TargetArea)
             {
                 actionManager->queuedGroundTargetObjectID = targetObjectID;
                 queuedGroundTargetObjectID = targetObjectID;
@@ -101,7 +101,7 @@ public static unsafe class ActionStackManager
                 queuedGroundTargetObjectID = 0;
             }
 
-            if (ReAction.Config.EnableInstantGroundTarget && !succeeded && queuedGroundTargetObjectID == 0)
+            if (ReActionEx.Config.EnableInstantGroundTarget && !succeeded && queuedGroundTargetObjectID == 0)
                 SetInstantGroundTarget(actionType, useType);
 
             return ret!.Value;
@@ -151,7 +151,7 @@ public static unsafe class ActionStackManager
 
     private static void SetInstantGroundTarget(uint actionType, uint useType)
     {
-        if ((ReAction.Config.EnableBlockMiscInstantGroundTargets && actionType == 11) || useType == 2 && actionType == 1 || actionType == 15) return;
+        if ((ReActionEx.Config.EnableBlockMiscInstantGroundTargets && actionType == 11) || useType == 2 && actionType == 1 || actionType == 15) return;
 
         DalamudApi.LogDebug($"Making ground target instant {actionType}, {useType}");
 

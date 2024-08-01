@@ -2,11 +2,11 @@ using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 
-namespace ReAction.Modules;
+namespace ReActionEx.Modules;
 
 public class AutoFocusTarget : PluginModule
 {
-    public override bool ShouldEnable => ReAction.Config.AutoFocusTargetID != 0;
+    public override bool ShouldEnable => ReActionEx.Config.AutoFocusTargetID != 0;
 
     protected override bool Validate() => Game.SetFocusTargetByObjectIDHook is { Address: not 0 };
     protected override void Enable() => DalamudApi.Framework.Update += Update;
@@ -14,7 +14,7 @@ public class AutoFocusTarget : PluginModule
 
     private static unsafe void Update(IFramework framework)
     {
-        var target = ReAction.Config.EnableAutoFocusTargetOutOfCombat || DalamudApi.Condition[ConditionFlag.InCombat] ? PronounManager.GetGameObjectFromID(ReAction.Config.AutoFocusTargetID) : null;
+        var target = ReActionEx.Config.EnableAutoFocusTargetOutOfCombat || DalamudApi.Condition[ConditionFlag.InCombat] ? PronounManager.GetGameObjectFromID(ReActionEx.Config.AutoFocusTargetID) : null;
 
         if (target == null && Game.FocusTargetInfo.Name != null)
             Game.RefocusTarget();

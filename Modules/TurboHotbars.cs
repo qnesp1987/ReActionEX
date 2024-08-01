@@ -7,7 +7,7 @@ using FFXIVClientStructs.FFXIV.Client.UI.Info;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Hypostasis.Game.Structures;
 
-namespace ReAction.Modules;
+namespace ReActionEx.Modules;
 
 public unsafe class TurboHotbars : PluginModule
 {
@@ -28,7 +28,7 @@ public unsafe class TurboHotbars : PluginModule
     private static readonly Dictionary<uint, TurboInfo> inputIDInfos = new();
     private static bool isAnyTurboRunning;
 
-    public override bool ShouldEnable => ReAction.Config.EnableTurboHotbars;
+    public override bool ShouldEnable => ReActionEx.Config.EnableTurboHotbars;
 
     protected override bool Validate() => InputData.isInputIDPressed.IsValid && InputData.isInputIDHeld.IsValid;
 
@@ -54,7 +54,7 @@ public unsafe class TurboHotbars : PluginModule
 
         var isPressed = InputData.isInputIDPressed.Original(inputData, id);
         var isHeld = inputData->IsInputIDHeld(id);
-        if (ReAction.Config.ToggleTurboMode)
+        if (ReActionEx.Config.ToggleTurboMode)
         {
             if (isHeld && !info.TimeHeld.IsRunning)
             {
@@ -79,13 +79,13 @@ public unsafe class TurboHotbars : PluginModule
             }
         }
 
-        var useHeld = info.IsReady && (ReAction.Config.EnableTurboHotbarsOutOfCombat || DalamudApi.Condition[ConditionFlag.InCombat]);
-        var useToggle = info.Toggled && useHeld && ReAction.Config.ToggleTurboMode;
+        var useHeld = info.IsReady && (ReActionEx.Config.EnableTurboHotbarsOutOfCombat || DalamudApi.Condition[ConditionFlag.InCombat]);
+        var useToggle = info.Toggled && useHeld && ReActionEx.Config.ToggleTurboMode;
         var ret = useToggle ? true : useHeld ? isHeld : (bool)isPressed;
         
         if (ret)
         {
-            info.RepeatDelay = isPressed && ReAction.Config.InitialTurboHotbarInterval > 0 ? ReAction.Config.InitialTurboHotbarInterval : ReAction.Config.TurboHotbarInterval;
+            info.RepeatDelay = isPressed && ReActionEx.Config.InitialTurboHotbarInterval > 0 ? ReActionEx.Config.InitialTurboHotbarInterval : ReActionEx.Config.TurboHotbarInterval;
             info.LastPress.Restart();
         }
         else if (isHeld != info.LastFrameHeld || useToggle)

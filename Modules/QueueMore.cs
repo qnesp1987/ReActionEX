@@ -1,14 +1,14 @@
 using Hypostasis.Game.Structures;
 using Lumina.Excel.GeneratedSheets;
 
-namespace ReAction.Modules;
+namespace ReActionEx.Modules;
 
 public unsafe class QueueMore : PluginModule
 {
     private static readonly AsmPatch allowQueuingPatch = new("76 0A 41 80 F8 04", [ 0xEB ]);
     private static ushort lastLBSequence = 0;
 
-    public override bool ShouldEnable => ReAction.Config.EnableQueuingMore;
+    public override bool ShouldEnable => ReActionEx.Config.EnableQueuingMore;
 
     protected override bool Validate() => allowQueuingPatch.IsValid;
 
