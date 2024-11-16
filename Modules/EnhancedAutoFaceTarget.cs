@@ -1,5 +1,5 @@
 using Hypostasis.Game.Structures;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace ReActionEx.Modules;
 
@@ -30,7 +30,7 @@ public unsafe class EnhancedAutoFaceTarget : PluginModule
 
     private static void PostActionStack(ActionManager* actionManager, uint actionType, uint actionID, uint adjustedActionID, ref ulong targetObjectID, uint param, uint useType, int pvp)
     {
-        if (DalamudApi.DataManager.GetExcelSheet<Action>()?.GetRow(adjustedActionID) is { Unknown26: false }) // This is checked by Client::Game::ActionManager_GetActionInRangeOrLoS
+        if (DalamudApi.DataManager.GetExcelSheet<Action>()?.GetRow(adjustedActionID) is { NeedToFaceTarget: false }) // This is checked by Client::Game::ActionManager_GetActionInRangeOrLoS
             removeAutoFaceTargetPatch.Enable();
         else
             removeAutoFaceTargetPatch.Disable();
