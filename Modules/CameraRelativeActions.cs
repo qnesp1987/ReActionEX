@@ -1,5 +1,6 @@
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
+using System;
 using ActionManager = Hypostasis.Game.Structures.ActionManager;
 
 namespace ReActionEx.Modules;
@@ -14,11 +15,16 @@ public unsafe class CameraRelativeActions : PluginModule
 
     [HypostasisSignatureInjection("E8 ?? ?? ?? ?? 83 FE 4F", Required = true)]
     private static delegate* unmanaged<GameObject*, float, void> fpSetGameObjectRotation;
-    private static void SetCharacterRotationToCamera()
+    private static void SetCharacterRotationToCamera(bool reverseBackwardsDashes)
     {
         var worldCamera = Common.CameraManager->worldCamera;
         if (worldCamera == null) return;
-        fpSetGameObjectRotation((GameObject*)DalamudApi.ClientState.LocalPlayer!.Address, worldCamera->GameObjectHRotation);
+
+        var rotation = worldCamera->GameObjectHRotation;
+        if (reverseBackwardsDashes)
+            rotation = rotation > 0 ? rotation - MathF.PI : rotation + MathF.PI;
+
+        fpSetGameObjectRotation((GameObject*)DalamudApi.ClientState.LocalPlayer!.Address, rotation);
     }
 
     private static void PostActionStack(ActionManager* actionManager, uint actionType, uint actionID, uint adjustedActionID, ref ulong targetObjectID, uint param, uint useType, int pvp)
@@ -30,7 +36,10 @@ public unsafe class CameraRelativeActions : PluginModule
 
         DalamudApi.LogDebug($"Rotating camera {actionType}, {adjustedActionID}");
 
-        SetCharacterRotationToCamera();
+        if (ReActionEx.actionSheet.TryGetValue(adjustedActionID, out var a))
+        {
+            SetCharacterRotationToCamera(a.BehaviourType is 3 or 4 && ReActionEx.Config.EnableReverseBackwardDashes);
+        }
     }
 
     private static bool CheckAction(uint actionType, uint actionID, uint adjustedActionID)

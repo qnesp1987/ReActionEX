@@ -83,6 +83,7 @@ public class Configuration : PluginConfiguration, IPluginConfiguration
     public bool EnableSpellAutoAttacksOutOfCombat = false;
     public bool EnableCameraRelativeDashes = false;
     public bool EnableNormalBackwardDashes = false;
+    public bool EnableReverseBackwardDashes = false;
     public bool EnableQueuingMore = false;
     public bool EnableFrameAlignment = false;
     public bool EnableAutoRefocusTarget = false;

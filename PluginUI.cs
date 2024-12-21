@@ -226,7 +226,7 @@ public static class PluginUI
         0 => "All Actions",
         1 => "All Harmful Actions",
         2 => "All Beneficial Actions",
-        _ => $"[#{a.RowId} {a.ClassJob.Value.Abbreviation}{(a.IsPvP ? " PVP" : string.Empty)}] {a.Name}"
+        _ => $"[#{a.RowId} {a.ClassJob.ValueNullable?.Abbreviation}{(a.IsPvP ? " PVP" : string.Empty)}] {a.Name}"
     };
 
     private static readonly ImGuiEx.ExcelSheetComboOptions<Action> actionComboOptions = new()
@@ -424,9 +424,20 @@ public static class PluginUI
 
             using (ImGuiEx.DisabledBlock.Begin(!ReActionEx.Config.EnableCameraRelativeDashes))
             {
-                ImGuiEx.Prefix(true);
+                ImGuiEx.Prefix(false);
                 save |= ImGui.Checkbox("Block Backward Dashes", ref ReActionEx.Config.EnableNormalBackwardDashes);
                 ImGuiEx.SetItemTooltip("Disables the previous option for any backward dash, such as Elusive Jump.");
+
+                if (ReActionEx.Config.EnableNormalBackwardDashes && save)
+                    ReActionEx.Config.EnableReverseBackwardDashes = false;
+
+                ImGuiEx.Prefix(true);
+                save |= ImGui.Checkbox($"Reverse Backward Dashes", ref ReActionEx.Config.EnableReverseBackwardDashes);
+                ImGuiEx.SetItemTooltip($"Dashes such as Elusive Jump will dash forward relative to the camera instead of backwards.");
+
+                if (ReActionEx.Config.EnableReverseBackwardDashes && save)
+                    ReActionEx.Config.EnableNormalBackwardDashes = false;
+
             }
 
             ImGuiEx.EndGroupBox();

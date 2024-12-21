@@ -6,9 +6,9 @@ namespace ReActionEx.Modules;
 public unsafe class EnhancedAutoFaceTarget : PluginModule
 {
     // jmp 1Ch
-    private static readonly AsmPatch removeAutoFaceTargetPatch = new("80 7E 33 06 75 1E 48 8D 0D", [ 0x90, 0x90, 0x90, 0x90, 0xEB, 0x1C ]);
+    private static readonly AsmPatch removeAutoFaceTargetPatch = new("80 7D 33 06 75 1E 48 8D 0D", [0x90, 0x90, 0x90, 0x90, 0xEB, 0x1C]);
     // jz -> jmp ??
-    private static readonly AsmPatch removeAutoFaceGroundTargetPatch = new("80 7E 33 06 74 21 48 8D 8F", [ 0x90, 0x90, 0x90, 0x90, 0xEB ]);
+    private static readonly AsmPatch removeAutoFaceGroundTargetPatch = new("80 7D 33 06 74 21 48 8D 8F", [0x90, 0x90, 0x90, 0x90, 0xEB]);
 
     public override bool ShouldEnable => ReActionEx.Config.EnableEnhancedAutoFaceTarget;
 
@@ -30,7 +30,7 @@ public unsafe class EnhancedAutoFaceTarget : PluginModule
 
     private static void PostActionStack(ActionManager* actionManager, uint actionType, uint actionID, uint adjustedActionID, ref ulong targetObjectID, uint param, uint useType, int pvp)
     {
-        if (DalamudApi.DataManager.GetExcelSheet<Action>()?.GetRow(adjustedActionID) is { NeedToFaceTarget: false }) // This is checked by Client::Game::ActionManager_GetActionInRangeOrLoS
+        if (DalamudApi.DataManager.GetExcelSheet<Action>()?.GetRowOrDefault(adjustedActionID) is { NeedToFaceTarget: false }) // This is checked by Client::Game::ActionManager_GetActionInRangeOrLoS
             removeAutoFaceTargetPatch.Enable();
         else
             removeAutoFaceTargetPatch.Disable();
