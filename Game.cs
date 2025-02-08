@@ -16,18 +16,20 @@ public static unsafe class Game
 {
     public const uint InvalidObjectID = 0xE0000000;
 
-    public static readonly AsmPatch queueGroundTargetsPatch = new("75 49 44 8B C7 41 8B D5", [ 0x90, 0x90 ], ReActionEx.Config.EnableGroundTargetQueuing);
+    public static readonly AsmPatch queueGroundTargetsPatch = new("75 49 44 8B C7 41 8B D5", [0x90, 0x90], ReActionEx.Config.EnableGroundTargetQueuing);
 
+<<<<<<< Updated upstream
     // test byte ptr [rbp+3A], 04 (CanTargetSelf)
     // jnz 79h
     public static readonly AsmPatch spellAutoAttackPatch = new("41 B0 01 41 0F B6 D0 E9 ?? ?? ?? ?? 41 B0 01", [0xF6, 0x45, 0x3A, 0x04, 0x0F, 0x85, 0x79, 0x00, 0x00, 0x00, 0x90, 0x90], ReActionEx.Config.EnableSpellAutoAttacks && ReActionEx.Config.EnableSpellAutoAttacksOutOfCombat);
+=======
+    public static readonly AsmPatch spellAutoAttackPatch = new("41 B0 01 44 0F B6 CA 41 0F B6 D0 E9 ?? ?? ?? ?? 41 B0 01",
+        [0xF6, 0x46, 0x3A, 0x04, 0x0F, 0x85, 0x7A, 0x00, 0x00, 0x00, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90], 
+        ReActionEx.Config.EnableSpellAutoAttacks && ReActionEx.Config.EnableSpellAutoAttacksOutOfCombat);
+>>>>>>> Stashed changes
 
-    public static readonly AsmPatch allowUnassignableActionsPatch = new("75 07 32 C0 E9 ?? ?? ?? ?? 48 8B 00", [ 0xEB ], ReActionEx.Config.EnableUnassignableActions);
+    public static readonly AsmPatch allowUnassignableActionsPatch = new("75 07 32 C0 E9 ?? ?? ?? ?? 48 8B 00", [0xEB], ReActionEx.Config.EnableUnassignableActions);
 
-    // mov eax, 1000f
-    // movd xmm1, eax
-    // mulss xmm0, xmm1
-    // cvttss2si rcx, xmm0
     public static readonly AsmPatch waitSyntaxDecimalPatch = new("F3 0F 58 05 ?? ?? ?? ?? F3 48 0F 2C C0 69 C8",
         [
             0xB8, 0x00, 0x00, 0x7A, 0x44,
@@ -39,12 +41,6 @@ public static unsafe class Game
         ],
         ReActionEx.Config.EnableFractionality);
 
-    // mov eax, 1000f
-    // movd xmm0, eax
-    // mulss xmm1, xmm0
-    // cvttss2si rcx, xmm1
-    // mov [rbx+58h], ecx
-    // jmp
     public static readonly AsmPatch waitCommandDecimalPatch = new("F3 0F 58 0D ?? ?? ?? ?? F3 48 0F 2C C1 69 C8",
         [
             0xB8, 0x00, 0x00, 0x7A, 0x44,
@@ -58,7 +54,7 @@ public static unsafe class Game
         ],
         ReActionEx.Config.EnableFractionality);
 
-    public static readonly AsmPatch queueACCommandPatch = new("02 00 00 00 41 8B D7 89", [ 0x64 ], ReActionEx.Config.EnableMacroQueue);
+    public static readonly AsmPatch queueACCommandPatch = new("02 00 00 00 41 8B D7 89", [0x64], ReActionEx.Config.EnableMacroQueue);
 
     public static ulong GetObjectID(GameObject* o)
     {
@@ -68,13 +64,30 @@ public static unsafe class Game
         return (ulong)((id.Type * 0x1_0000_0000) | id.ObjectId);
     }
 
-    [HypostasisSignatureInjection("E8 ?? ?? ?? ?? 48 8B D8 F3 0F 10 15")]
-    public static delegate* unmanaged<ulong, Bool, GameObject*> fpGetGameObjectFromObjectID;
-    public static GameObject* GetGameObjectFromObjectID(ulong id) => fpGetGameObjectFromObjectID(id, false);
+    public static GameObject* GetLowestHPEnemy()
+    {
+        var allObjects = Common.GetGameObjects(); // Hypothetical method to retrieve all entities.
+        if (allObjects == null || !allObjects.Any())
+            return null;
 
-    // The game is dumb and I cannot check LoS easily because not facing the target will override it
-    public static bool IsActionOutOfRange(uint actionID, GameObject* o) => DalamudApi.ClientState.LocalPlayer is { } p && o != null
-        && FFXIVClientStructs.FFXIV.Client.Game.ActionManager.GetActionInRangeOrLoS(actionID, (GameObject*)p.Address, o) is 566; // Returns the log message (562 = LoS, 565 = Not Facing Target, 566 = Out of Range)
+        // Filter to find the enemy with the lowest HP
+        var lowestHPEnemy = allObjects
+            .Where(o => IsEnemy(o)) // Filter to include only enemies.
+            .OrderBy(o => ((Character*)o)->CharacterData.Health)
+            .FirstOrDefault();
+
+        return lowestHPEnemy;
+    }
+
+    private static bool IsEnemy(GameObject* obj)
+    {
+        if (obj == null) return false;
+
+        var localPlayer = DalamudApi.ClientState.LocalPlayer;
+        return localPlayer != null &&
+               obj->ObjectKind == ObjectKind.BattleNpc && // Ensure it’s a combat NPC.
+               obj->FactionId != localPlayer.FactionId;  // Check against the player's faction.
+    }
 
     public static GameObject* GetMouseOverObject(GameObjectArray* array)
     {
@@ -84,7 +97,6 @@ public static unsafe class Game
         var camera = (Camera*)Common.CameraManager->worldCamera;
         if (targetSystem == null || camera == null || targetSystem->MouseOverTarget == null) return null;
 
-        // Nameplates fucking suck (I am aware nameplates aren't restricted to the objects in the array)
         var nameplateTarget = targetSystem->MouseOverNameplateTarget;
         if (nameplateTarget != null)
         {
@@ -105,60 +117,9 @@ public static unsafe class Game
     }
 
     public delegate Bool UseActionDelegate(ActionManager* actionManager, uint actionType, uint actionID, ulong targetObjectID, uint param, uint useType, int pvp, bool* isGroundTarget);
-    [HypostasisClientStructsInjection(typeof(FFXIVClientStructs.FFXIV.Client.Game.ActionManager.MemberFunctionPointers))]
     public static Hook<UseActionDelegate> UseActionHook;
     private static Bool UseActionDetour(ActionManager* actionManager, uint actionType, uint actionID, ulong targetObjectID, uint param, uint useType, int pvp, bool* isGroundTarget) =>
         ActionStackManager.OnUseAction(actionManager, actionType, actionID, targetObjectID, param, useType, pvp, isGroundTarget);
-
-    public static (string Name, uint DataID) FocusTargetInfo { get; private set; } = (null, 0);
-    public delegate void SetFocusTargetByObjectIDDelegate(TargetSystem* targetSystem, ulong objectID);
-    [HypostasisSignatureInjection("E8 ?? ?? ?? ?? BA 0C 00 00 00 48 8D 0D")]
-    public static Hook<SetFocusTargetByObjectIDDelegate> SetFocusTargetByObjectIDHook;
-    private static void SetFocusTargetByObjectIDDetour(TargetSystem* targetSystem, ulong objectID)
-    {
-        if (ReActionEx.Config.AutoFocusTargetID == 0 || DalamudApi.TargetManager.FocusTarget == null || DalamudApi.TargetManager.FocusTarget.Equals(DalamudApi.ObjectTable.FirstOrDefault(o => o.DataId == FocusTargetInfo.DataID && o.Name.ToString() == FocusTargetInfo.Name)))
-            SetFocusTargetByObjectIDHook.Original(targetSystem, objectID);
-        FocusTargetInfo = DalamudApi.TargetManager.FocusTarget is { } o ? (o.Name.ToString(), o.DataId) : (null, 0);
-    }
-
-    public static void RefocusTarget()
-    {
-        if (FocusTargetInfo.Name == null) return;
-        DalamudApi.TargetManager.FocusTarget = DalamudApi.ObjectTable.FirstOrDefault(o => o.DataId == FocusTargetInfo.DataID && o.Name.ToString() == FocusTargetInfo.Name);
-    }
-
-    private delegate GameObject* ResolvePlaceholderDelegate(PronounModule* pronounModule, string text, Bool defaultToTarget, Bool allowPlayerNames);
-    [HypostasisSignatureInjection("E8 ?? ?? ?? ?? 48 8B 5C 24 30 EB 0C")]
-    private static Hook<ResolvePlaceholderDelegate> ResolvePlaceholderHook;
-    private static GameObject* ResolvePlaceholderDetour(PronounModule* pronounModule, string text, Bool defaultToTarget, Bool allowPlayerNames) =>
-        ResolvePlaceholderHook.Original(pronounModule, text, defaultToTarget, allowPlayerNames || ReActionEx.Config.EnablePlayerNamesInCommands);
-
-    private static GameObject* GetGameObjectFromPronounIDDetour(PronounModule* pronounModule, PronounID pronounID)
-    {
-        var ret = Common.getGameObjectFromPronounID.Original(pronounModule, pronounID);
-        return (ret != null || !PronounManager.CustomPronouns.TryGetValue((uint)pronounID, out var pronoun)) ? ret : pronoun.GetGameObject();
-    }
-
-    private delegate uint GetTextCommandParamIDDelegate(PronounModule* pronounModule, nint* text, int len); // Probably not an issue, but this function doesn't get called if the length is > 31
-    [HypostasisSignatureInjection("E8 ?? ?? ?? ?? EB C3 48 63 F7")] // Original was inlined, may override default game placeholders if not careful!
-    private static Hook<GetTextCommandParamIDDelegate> GetTextCommandParamIDHook;
-    private static uint GetTextCommandParamIDDetour(PronounModule* pronounModule, nint* bytePtrPtr, int len)
-    {
-        var ret = GetTextCommandParamIDHook.Original(pronounModule, bytePtrPtr, len);
-        return (ret != 0 || !PronounManager.CustomPlaceholders.TryGetValue((*bytePtrPtr).ReadCString(len), out var pronoun)) ? ret : pronoun.ID;
-    }
-
-    private delegate void ExecuteMacroDelegate(RaptureShellModule* raptureShellModule, RaptureMacroModule.Macro* macro);
-    [HypostasisClientStructsInjection(typeof(RaptureShellModule.MemberFunctionPointers))]
-    private static Hook<ExecuteMacroDelegate> ExecuteMacroHook;
-    private static void ExecuteMacroDetour(RaptureShellModule* raptureShellModule, RaptureMacroModule.Macro* macro)
-    {
-        if (ReActionEx.Config.EnableMacroQueue)
-            queueACCommandPatch.Enable();
-        else
-            queueACCommandPatch.Disable();
-        ExecuteMacroHook.Original(raptureShellModule, macro);
-    }
 
     public static void Initialize()
     {
