@@ -1,6 +1,7 @@
 {
   "version": 1,
   "dependencies": {
+    "net9.0": {
       "DalamudPackager": {
         "type": "Direct",
         "requested": "[12.0.0, )",
