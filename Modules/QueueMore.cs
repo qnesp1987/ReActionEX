@@ -5,7 +5,9 @@ namespace ReActionEx.Modules;
 
 public unsafe class QueueMore : PluginModule
 {
-    private static readonly AsmPatch allowQueuingPatch = new("76 0A 41 80 F8 04", [ 0xEB ]);
+    // Causes switch statement to behave as if ActionCategory is 2 or 3 (Spell / Weaponskill)
+    // jz -> jmp ??
+    private static readonly AsmPatch allowQueuingPatch = new("0F B6 49 22 83 E9 02 0F 84", [ null, null, null, null, null, null, null, 0x90, 0xE9 ]);
     private static ushort lastLBSequence = 0;
 
     public override bool ShouldEnable => ReActionEx.Config.EnableQueuingMore;
@@ -36,11 +38,6 @@ public unsafe class QueueMore : PluginModule
                 DalamudApi.LogDebug("Applying queued item param");
                 param = 65535;
                 break;
-            case 5 when actionID == 4:
-                actionType = 1;
-                actionID = 3;
-                targetObjectID = DalamudApi.ClientState.LocalPlayer!.GameObjectId;
-                break;
         }
     }
 
@@ -56,16 +53,16 @@ public unsafe class QueueMore : PluginModule
     {
         allowQueuingPatch.Disable();
 
-        if (ret && DalamudApi.DataManager.GetExcelSheet<Action>()?.GetRowOrDefault(adjustedActionID) is { ActionCategory.RowId: 9 or 15 })
-            lastLBSequence = actionManager->currentSequence;
+if (ret && DalamudApi.DataManager.GetExcelSheet<Action>()?.GetRowOrDefault(adjustedActionID) is { ActionCategory.RowId: 9 or 15 })
+    lastLBSequence = actionManager->currentSequence;          
     }
 
     private static bool CheckAction(uint actionType, uint actionID, uint adjustedActionID) =>
         actionType switch
         {
-            1 when DalamudApi.DataManager.GetExcelSheet<Action>()?.GetRowOrDefault(adjustedActionID) is { ActionCategory.RowId: 9 or 15 } => lastLBSequence != Common.ActionManager->currentSequence, // Allow LB
+1 when DalamudApi.DataManager.GetExcelSheet<Action>()?.GetRowOrDefault(adjustedActionID) is { ActionCategory.RowId: 9 or 15 } => lastLBSequence != Common.ActionManager->currentSequence, // Allow LB
+
             2 => true, // Allow items
-            5 when actionID == 4 => true, // Allow Sprint
             _ => false
         };
 }

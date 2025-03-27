@@ -229,11 +229,12 @@ public static class PluginUI
         _ => $"[#{a.RowId} {a.ClassJob.ValueNullable?.Abbreviation}{(a.IsPvP ? " PVP" : string.Empty)}] {a.Name}"
     };
 
-    private static readonly ImGuiEx.ExcelSheetComboOptions<Action> actionComboOptions = new()
-    {
-        FormatRow = FormatActionRow,
-        FilteredSheet = DalamudApi.DataManager.GetExcelSheet<Action>()?.Take(3).Concat(ReActionEx.actionSheet.Select(kv => kv.Value))
-    };
+   private static readonly ImGuiEx.ExcelSheetComboOptions<Action> actionComboOptions = new()
+{
+    FormatRow = FormatActionRow,
+    FilteredSheet = DalamudApi.DataManager.GetExcelSheet<Action>()?.Take(3).Concat(ReActionEx.actionSheet.Select(kv => kv.Value))
+};
+
 
     private static readonly ImGuiEx.ExcelSheetPopupOptions<Action> actionPopupOptions = new()
     {
@@ -304,14 +305,16 @@ public static class PluginUI
     private static string FormatOverrideActionRow(Action a) => a.RowId switch
     {
         0 => "Same Action",
-        _ => $"[#{a.RowId} {a.ClassJob.Value.Abbreviation}{(a.IsPvP ? " PVP" : string.Empty)}] {a.Name}"
+
+        _ => $"[#{a.RowId} {a.ClassJob.ValueNullable?.Abbreviation}{(a.IsPvP ? " PVP" : string.Empty)}] {a.Name}"
+
     };
 
-    private static readonly ImGuiEx.ExcelSheetComboOptions<Action> actionOverrideComboOptions = new()
-    {
-        FormatRow = FormatOverrideActionRow,
-        FilteredSheet = DalamudApi.DataManager.GetExcelSheet<Action>()?.Take(1).Concat(ReActionEx.actionSheet.Select(kv => kv.Value))
-    };
+private static readonly ImGuiEx.ExcelSheetComboOptions<Action> actionOverrideComboOptions = new()
+{
+    FormatRow = FormatOverrideActionRow,
+    FilteredSheet = DalamudApi.DataManager.GetExcelSheet<Action>()?.Take(1).Concat(ReActionEx.actionSheet.Select(kv => kv.Value))
+};
 
     private static void DrawItemEditor(Configuration.ActionStack stack)
     {
@@ -516,8 +519,9 @@ public static class PluginUI
             }
             ImGuiEx.SetItemTooltip("Ground targets will insert themselves into the action queue,\ncausing them to immediately be used as soon as possible, like other OGCDs.");
 
-            save |= ImGui.Checkbox("Enable Queuing More", ref ReActionEx.Config.EnableQueuingMore);
-            ImGuiEx.SetItemTooltip("Allows sprint, items and LBs to be queued.");
+save |= ImGui.Checkbox("Enable Queuing More", ref ReActionEx.Config.EnableQueuingMore);
+ImGuiEx.SetItemTooltip("Allows all items and LBs to be queued.");
+
 
             save |= ImGui.Checkbox("Always Queue Macros", ref ReActionEx.Config.EnableMacroQueue);
             ImGuiEx.SetItemTooltip("All macros will behave as if /macroqueue was used.");
@@ -564,29 +568,30 @@ public static class PluginUI
 
         if (ImGuiEx.BeginGroupBox("Sunderings", 0.5f))
         {
-            save |= ImGui.Checkbox("Sunder Meditation", ref ReActionEx.Config.EnableDecomboMeditation);
-            ImGuiEx.SetItemTooltip("Removes the Meditation <-> Steel Peak / Forbidden Chakra combo. You will need to use\nthe hotbar feature below to place one of them on your hotbar in order to use them again.\nSteel Peak ID: 25761\nForbidden Chakra ID: 3547");
+			
+    save |= ImGui.Checkbox("Sunder Meditation", ref ReActionEx.Config.EnableDecomboMeditation);
+    ImGuiEx.SetItemTooltip("Removes the Meditation <-> Steel Peak / Forbidden Chakra combo. You will need to use\nthe hotbar feature below to place one of them on your hotbar in order to use them again.\nSteel Peak ID: 25761\nForbidden Chakra ID: 3547");
 
-            save |= ImGui.Checkbox("Sunder Bunshin", ref ReActionEx.Config.EnableDecomboBunshin);
-            ImGuiEx.SetItemTooltip("Removes the Bunshin <-> Phantom Kamaitachi combo. You will need to use\nthe hotbar feature below to place it on your hotbar in order to use it again.\nPhantom Kamaitachi ID: 25774");
+    save |= ImGui.Checkbox("Sunder Bunshin", ref ReActionEx.Config.EnableDecomboBunshin);
+    ImGuiEx.SetItemTooltip("Removes the Bunshin <-> Phantom Kamaitachi combo. You will need to use\nthe hotbar feature below to place it on your hotbar in order to use it again.\nPhantom Kamaitachi ID: 25774");
 
-            save |= ImGui.Checkbox("Sunder Wanderer's Minuet", ref ReActionEx.Config.EnableDecomboWanderersMinuet);
-            ImGuiEx.SetItemTooltip("Removes the Wanderer's Minuet -> Pitch Perfect combo. You will need to use\nthe hotbar feature below to place it on your hotbar in order to use it again.\nPitch Perfect ID: 7404");
+    save |= ImGui.Checkbox("Sunder Wanderer's Minuet", ref ReActionEx.Config.EnableDecomboWanderersMinuet);
+    ImGuiEx.SetItemTooltip("Removes the Wanderer's Minuet -> Pitch Perfect combo. You will need to use\nthe hotbar feature below to place it on your hotbar in order to use it again.\nPitch Perfect ID: 7404");
+    
+    save |= ImGui.Checkbox("Sunder Liturgy of the Bell", ref ReActionEx.Config.EnableDecomboLiturgy);
+    ImGuiEx.SetItemTooltip("Removes the Liturgy of the Bell combo. You will need to use the hotbar\nfeature below to place it on your hotbar in order to use it again.\nLiturgy of the Bell (Detonate) ID: 28509");
 
-            save |= ImGui.Checkbox("Sunder Liturgy of the Bell", ref ReActionEx.Config.EnableDecomboLiturgy);
-            ImGuiEx.SetItemTooltip("Removes the Liturgy of the Bell combo. You will need to use the hotbar\nfeature below to place it on your hotbar in order to use it again.\nLiturgy of the Bell (Detonate) ID: 28509");
+    save |= ImGui.Checkbox("Sunder Earthly Star", ref ReActionEx.Config.EnableDecomboEarthlyStar);
+    ImGuiEx.SetItemTooltip("Removes the Earthly Star combo. You will need to use the hotbar\nfeature below to place it on your hotbar in order to use it again.\nStellar Detonation ID: 8324");
 
-            save |= ImGui.Checkbox("Sunder Earthly Star", ref ReActionEx.Config.EnableDecomboEarthlyStar);
-            ImGuiEx.SetItemTooltip("Removes the Earthly Star combo. You will need to use the hotbar\nfeature below to place it on your hotbar in order to use it again.\nStellar Detonation ID: 8324");
+    save |= ImGui.Checkbox("Sunder Minor Arcana", ref ReActionEx.Config.EnableDecomboMinorArcana);
+    ImGuiEx.SetItemTooltip("Removes the Minor Arcana -> Lord / Lady of Crowns combo. You will need to use the\nhotbar feature below to place one of them on your hotbar in order to use them again.\nLord of Crowns ID: 7444\nLady of Crowns ID: 7445");
 
-            save |= ImGui.Checkbox("Sunder Minor Arcana", ref ReActionEx.Config.EnableDecomboMinorArcana);
-            ImGuiEx.SetItemTooltip("Removes the Minor Arcana -> Lord / Lady of Crowns combo. You will need to use the\nhotbar feature below to place one of them on your hotbar in order to use them again.\nLord of Crowns ID: 7444\nLady of Crowns ID: 7445");
+    save |= ImGui.Checkbox("Sunder Geirskogul", ref ReActionEx.Config.EnableDecomboGeirskogul);
+    ImGuiEx.SetItemTooltip("Removes the Geirskogul -> Nastrond combo. You will need to use the\nhotbar feature below to place it on your hotbar in order to use it again.\nNastrond ID: 7400");
 
-            save |= ImGui.Checkbox("Sunder Geirskogul", ref ReActionEx.Config.EnableDecomboGeirskogul);
-            ImGuiEx.SetItemTooltip("Removes the Geirskogul -> Nastrond combo. You will need to use the\nhotbar feature below to place it on your hotbar in order to use it again.\nNastrond ID: 7400");
-
-            ImGuiEx.EndGroupBox();
-        }
+    ImGuiEx.EndGroupBox();
+}
 
         if (ImGuiEx.BeginGroupBox("Misc", 0.5f))
         {
@@ -702,7 +707,8 @@ public static class PluginUI
                 ImGuiEx.ExcelSheetCombo($"ID##{commandType}", ref commandID, new ImGuiEx.ExcelSheetComboOptions<FieldMarker> { FormatRow = r => $"[#{r.RowId}] {r.Name}" });
                 break;
             case RaptureHotbarModule.HotbarSlotType.Recipe:
-                ImGuiEx.ExcelSheetCombo($"ID##{commandType}", ref commandID, new ImGuiEx.ExcelSheetComboOptions<Recipe> { FormatRow = r => $"[#{r.RowId}] {r.ItemResult.Value.Name}" });
+ImGuiEx.ExcelSheetCombo($"ID##{commandType}", ref commandID, new ImGuiEx.ExcelSheetComboOptions<Recipe> { FormatRow = r => $"[#{r.RowId}] {r.ItemResult.ValueNullable?.Name}" });
+
                 break;
             case RaptureHotbarModule.HotbarSlotType.ChocoboRaceAbility:
                 ImGuiEx.ExcelSheetCombo($"ID##{commandType}", ref commandID, new ImGuiEx.ExcelSheetComboOptions<ChocoboRaceAbility> { FormatRow = r => $"[#{r.RowId}] {r.Name}" });
@@ -729,7 +735,8 @@ public static class PluginUI
                 ImGuiEx.ExcelSheetCombo($"ID##{commandType}", ref commandID, new ImGuiEx.ExcelSheetComboOptions<Perform> { FormatRow = r => $"[#{r.RowId}] {r.Instrument}" });
                 break;
             case RaptureHotbarModule.HotbarSlotType.McGuffin:
-                ImGuiEx.ExcelSheetCombo($"ID##{commandType}", ref commandID, new ImGuiEx.ExcelSheetComboOptions<McGuffin> { FormatRow = r => $"[#{r.RowId}] {r.UIData.Value.Name}" });
+ImGuiEx.ExcelSheetCombo($"ID##{commandType}", ref commandID, new ImGuiEx.ExcelSheetComboOptions<McGuffin> { FormatRow = r => $"[#{r.RowId}] {r.UIData.ValueNullable?.Name}" });
+
                 break;
             case RaptureHotbarModule.HotbarSlotType.Ornament:
                 ImGuiEx.ExcelSheetCombo($"ID##{commandType}", ref commandID, new ImGuiEx.ExcelSheetComboOptions<Ornament> { FormatRow = r => $"[#{r.RowId}] {r.Singular}" });

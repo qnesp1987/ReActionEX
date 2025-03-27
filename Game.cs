@@ -16,17 +16,16 @@ public static unsafe class Game
 {
     public const uint InvalidObjectID = 0xE0000000;
 
-    public static readonly AsmPatch queueGroundTargetsPatch = new("75 49 44 8B C7 41 8B D5", [0x90, 0x90], ReActionEx.Config.EnableGroundTargetQueuing);
+    // movzx eax, dl -> xor al, al
+    public static readonly AsmPatch queueGroundTargetsPatch = new("0F B6 C2 34 01 84 C0 74 8C", [ 0x90, 0x32, 0xC0 ], ReActionEx.Config.EnableGroundTargetQueuing);
 
-<<<<<<< Updated upstream
     // test byte ptr [rbp+3A], 04 (CanTargetSelf)
     // jnz 79h
-    public static readonly AsmPatch spellAutoAttackPatch = new("41 B0 01 41 0F B6 D0 E9 ?? ?? ?? ?? 41 B0 01", [0xF6, 0x45, 0x3A, 0x04, 0x0F, 0x85, 0x79, 0x00, 0x00, 0x00, 0x90, 0x90], ReActionEx.Config.EnableSpellAutoAttacks && ReActionEx.Config.EnableSpellAutoAttacksOutOfCombat);
-=======
-    public static readonly AsmPatch spellAutoAttackPatch = new("41 B0 01 44 0F B6 CA 41 0F B6 D0 E9 ?? ?? ?? ?? 41 B0 01",
-        [0xF6, 0x46, 0x3A, 0x04, 0x0F, 0x85, 0x7A, 0x00, 0x00, 0x00, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90], 
+    public static readonly AsmPatch spellAutoAttackPatch = new(
+        "41 B0 01 44 0F B6 CA 41 0F B6 D0 E9 ?? ?? ?? ?? 41 B0 01",
+        [0xF6, 0x46, 0x3A, 0x04, 0x0F, 0x85, 0x7A, 0x00, 0x00, 0x00, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90],
         ReActionEx.Config.EnableSpellAutoAttacks && ReActionEx.Config.EnableSpellAutoAttacksOutOfCombat);
->>>>>>> Stashed changes
+
 
     public static readonly AsmPatch allowUnassignableActionsPatch = new("75 07 32 C0 E9 ?? ?? ?? ?? 48 8B 00", [0xEB], ReActionEx.Config.EnableUnassignableActions);
 

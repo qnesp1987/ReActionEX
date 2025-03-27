@@ -13,7 +13,7 @@ public unsafe class CameraRelativeActions : PluginModule
     protected override void Enable() => ActionStackManager.PostActionStack += PostActionStack;
     protected override void Disable() => ActionStackManager.PostActionStack -= PostActionStack;
 
-    [HypostasisSignatureInjection("E8 ?? ?? ?? ?? 83 FE 4F", Required = true)]
+    [HypostasisSignatureInjection("E8 ?? ?? ?? ?? 83 FE 20", Required = true)]
     private static delegate* unmanaged<GameObject*, float, void> fpSetGameObjectRotation;
     private static void SetCharacterRotationToCamera(bool reverseBackwardsDashes)
     {
@@ -43,13 +43,20 @@ public unsafe class CameraRelativeActions : PluginModule
     }
 
     private static bool CheckAction(uint actionType, uint actionID, uint adjustedActionID)
-    {
-        if (!ReActionEx.actionSheet.TryGetValue(adjustedActionID, out var a)) return false;
-        if (ReActionEx.Config.EnableCameraRelativeDirectionals && a.IsPlayerAction && (a.AutoAttackBehaviour == 6 || (a.CastType is 3 or 4 && a.CanTargetSelf))) return true; // Channeled abilities and cones and rectangles
-        if (!ReActionEx.Config.EnableCameraRelativeDashes) return false;
-        if (!a.AffectsPosition && adjustedActionID != 29494) return false; // Block non movement abilities
-        if (!a.CanTargetSelf) return false; // Block non self targeted abilities
-        if (ReActionEx.Config.EnableNormalBackwardDashes && a.BehaviourType is 3 or 4) return false; // Block backwards dashes if desired
-        return a.BehaviourType > 1; // Block abilities like Loom and Shukuchi
-    }
+{
+    if (!ReActionEx.actionSheet.TryGetValue(adjustedActionID, out var a)) return false;
+
+    if (ReActionEx.Config.EnableCameraRelativeDirectionals &&
+        a.IsPlayerAction &&
+        (a.AutoAttackBehaviour == 6 || (a.CastType is 3 or 4 && a.CanTargetSelf)))
+        return true; // Channeled abilities and cones and rectangles
+
+    if (!ReActionEx.Config.EnableCameraRelativeDashes) return false;
+    if (!a.AffectsPosition && adjustedActionID != 29494) return false; // Block non-movement abilities
+    if (!a.CanTargetSelf) return false; // Block non self-targeted abilities
+    if (ReActionEx.Config.EnableNormalBackwardDashes && a.BehaviourType is 3 or 4) return false; // Block backwards dashes if desired
+
+    return a.BehaviourType > 1; // Block abilities like Loom and Shukuchi
+}
+
 }

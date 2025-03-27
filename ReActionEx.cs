@@ -15,8 +15,14 @@ public class ReActionEx(IDalamudPluginInterface pluginInterface) : DalamudPlugin
         Game.Initialize();
         PronounManager.Initialize();
 
-        actionSheet = DalamudApi.DataManager.GetExcelSheet<Lumina.Excel.Sheets.Action>()?.Where(i => i.ClassJobCategory.RowId > 0 && (i.ActionCategory.RowId <= 4 || i.ActionCategory.RowId == 9 || i.ActionCategory.RowId == 15) && i.RowId > 8).ToDictionary(i => i.RowId, i => i);
-        mountActionsSheet = DalamudApi.DataManager.GetExcelSheet<Lumina.Excel.Sheets.Action>()?.Where(i => i.ActionCategory.RowId == 12).ToDictionary(i => i.RowId, i => i);
+actionSheet = DalamudApi.DataManager.GetExcelSheet<Lumina.Excel.Sheets.Action>()?
+    .Where(i => i.ClassJobCategory.RowId > 0 && (i.ActionCategory.RowId <= 4 || i.ActionCategory.RowId == 9 || i.ActionCategory.RowId == 15) && i.RowId > 8)
+    .ToDictionary(i => i.RowId, i => i);
+
+mountActionsSheet = DalamudApi.DataManager.GetExcelSheet<Lumina.Excel.Sheets.Action>()?
+    .Where(i => i.ActionCategory.RowId == 12)
+    .ToDictionary(i => i.RowId, i => i);
+
         if (actionSheet == null || mountActionsSheet == null)
             throw new ApplicationException("Action sheet failed to load!");
     }
