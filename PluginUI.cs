@@ -304,13 +304,13 @@ public static class PluginUI
     private static string FormatOverrideActionRow(Action a) => a.RowId switch
     {
         0 => "Same Action",
-        _ => $"[#{a.RowId} {a.ClassJob.Value.Abbreviation}{(a.IsPvP ? " PVP" : string.Empty)}] {a.Name}"
+        _ => $"[#{a.RowId} {a.ClassJob.ValueNullable?.Abbreviation}{(a.IsPvP ? " PVP" : string.Empty)}] {a.Name}"
     };
 
     private static readonly ImGuiEx.ExcelSheetComboOptions<Action> actionOverrideComboOptions = new()
     {
         FormatRow = FormatOverrideActionRow,
-        FilteredSheet = DalamudApi.DataManager.GetExcelSheet<Action>()?.Take(1).Concat(ReActionEx.actionSheet.Select(kv => kv.Value))
+        FilteredSheet = DalamudApi.DataManager.GetExcelSheet<Action>().Take(1).Concat(ReActionEx.actionSheet.Select(kv => kv.Value))
     };
 
     private static void DrawItemEditor(Configuration.ActionStack stack)
@@ -548,13 +548,9 @@ public static class PluginUI
                 ImGui.EndGroup();
                 ImGuiEx.SetItemTooltip("When enabled, allows requeuing until the queued action's cooldown is below this value.");
 
-                ImGuiEx.Prefix(false);
+                ImGuiEx.Prefix(true);
                 save |= ImGui.SliderFloat("Action Lockout", ref ReActionEx.Config.QueueActionLockout, 0, 2.5f, "%.1f");
                 ImGuiEx.SetItemTooltip("Blocks the same action from being queued again if it has been on cooldown for less than this value.");
-
-                ImGuiEx.Prefix(true);
-                save |= ImGui.Checkbox("Enable GCD Slidecast Queuing", ref ReActionEx.Config.EnableSlidecastQueuing);
-                ImGuiEx.SetItemTooltip("Allows the next GCD to be queued during the last 0.5s of a GCD cast.");
             }
 
             ImGuiEx.EndGroupBox();

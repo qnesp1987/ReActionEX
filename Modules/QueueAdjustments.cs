@@ -9,7 +9,6 @@ namespace ReActionEx.Modules;
 public unsafe class QueueAdjustments : PluginModule
 {
     private static bool isRequeuing = false;
-    private static float tempQueue = 0f;
     private static uint lastUsedActionID = 0;
     private static readonly Stopwatch lastUsedActionTimer = new();
 
@@ -35,9 +34,6 @@ public unsafe class QueueAdjustments : PluginModule
 
     private static void PostActionStack(ActionManager* actionManager, uint actionType, uint actionID, uint adjustedActionID, ref ulong targetObjectID, uint param, uint useType, int pvp)
     {
-        if (useType == 1 && tempQueue > 0)
-            tempQueue = 0;
-
         if (!ReActionEx.Config.EnableRequeuing
             || !actionManager->isQueued
             || GetRemainingActionRecast(actionManager, (uint)actionManager->CS.QueuedActionType, actionManager->CS.QueuedActionType == ActionType.Action
@@ -87,25 +83,12 @@ public unsafe class QueueAdjustments : PluginModule
 
     public static Bool CanQueueActionDetour(ActionManager* actionManager, uint actionType, uint actionID)
     {
-        float threshold;
-        if (tempQueue > 0)
-        {
-            threshold = tempQueue;
-        }
-        else if (ReActionEx.Config.EnableSlidecastQueuing && actionManager->isCasting)
-        {
-            threshold = Math.Max(actionManager->gcdRecastTime - actionManager->castTime + 0.5f, 0.5f);
-            tempQueue = threshold;
-        }
-        else
-        {
-            threshold = (actionType == 1 ? actionManager->CS.GetAdjustedActionId(lastUsedActionID) == actionManager->CS.GetAdjustedActionId(actionID) : lastUsedActionID == actionID) && lastUsedActionTimer.Elapsed.TotalSeconds < ReActionEx.Config.QueueActionLockout
+        float threshold = (actionType == 1 ? actionManager->CS.GetAdjustedActionId(lastUsedActionID) == actionManager->CS.GetAdjustedActionId(actionID) : lastUsedActionID == actionID) && lastUsedActionTimer.Elapsed.TotalSeconds < ReActionEx.Config.QueueActionLockout
                 ? 0
                 : ReActionEx.Config.EnableGCDAdjustedQueueThreshold
                     ? ReActionEx.Config.QueueThreshold * ActionManager.GCDRecast / 2500f
                     : ReActionEx.Config.QueueThreshold;
-        }
-
+        
         return GetRemainingActionRecast(actionManager, actionType, actionID) is { } remaining && remaining <= threshold;
     }
 
