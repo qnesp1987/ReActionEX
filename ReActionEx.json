@@ -13,6 +13,6 @@
   ],
   "InternalName": "ReAction",
   "AssemblyVersion": "1.0.0.0",
-  "Changelog": "",
-  "DalamudApiLevel": 11
+  "Changelog": "- Patch Update",
+  "DalamudApiLevel": 12
 }
