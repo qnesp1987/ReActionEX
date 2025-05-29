@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <Version>1.0.0.6</Version>
+        <Version>1.0.0.8</Version>
         <TargetFramework>net9.0-windows</TargetFramework>
         <PlatformTarget>x64</PlatformTarget>
         <Platforms>x64;AnyCPU</Platforms>
@@ -17,6 +17,7 @@
 
     <ItemGroup>
         <PackageReference Include="DalamudPackager" Version="2.1.13" />
+        <ProjectReference Include="..\ECommons\ECommons\ECommons.csproj" />
         <Reference Include="FFXIVClientStructs">
             <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
             <Private>false</Private>

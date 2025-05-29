@@ -2,10 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Objects.Types;
+using ECommons.DalamudServices;
+using ECommons.ExcelServices;
+using ECommons.GameFunctions;
+using ECommons.Reflection;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using Lumina.Excel.Sheets;
+using static ECommons.ExcelServices.ExcelJobHelper;
 
 namespace ReActionEx;
 
@@ -26,6 +33,15 @@ public static unsafe class PronounHelpers
     public static GameObject* GetPartyMemberByLimitBreak1(uint actionID) => DalamudApi.DataManager.GetExcelSheet<ClassJob>() is { } sheet
         ? (GameObject*)Common.GetPartyMembers().Skip(1).FirstOrDefault(address => sheet.GetRow(((Character*)address)->CharacterData.ClassJob).LimitBreak1.RowId == actionID)
         : null;
+
+    public static unsafe IEnumerable<IBattleChara?> GetPartyMembers()
+    {
+        foreach (var a in Common.GetPartyMembers())
+        {
+            yield return (IBattleChara)Svc.Objects.FirstOrDefault(x => x.Address == a);
+        }
+    }
+
 }
 
 public interface IGamePronoun
@@ -132,6 +148,24 @@ public class LowestHPPPronoun : IGamePronoun
     }
 }
 
+public class DeadPronoun : IGamePronoun
+{
+    public string Name => "Dead Player (in party)";
+    public string Placeholder => "<dead>";
+    public uint ID => 11_001;
+
+    public unsafe GameObject* GetGameObject() => (GameObject*)(PronounHelpers.GetPartyMembers().FirstOrDefault(x => x.IsDead).Address);
+}
+
+public class DeadOutOfPartyPronoun : IGamePronoun
+{
+    public string Name => "Dead Player (out of party)";
+    public string Placeholder => "<dpoop>";
+    public uint ID => 11_000;
+
+    public unsafe GameObject* GetGameObject() => (GameObject*)(Svc.Objects.FirstOrDefault(x => !PronounHelpers.GetPartyMembers().Any(y => y.Address == x.Address) && x is IPlayerCharacter && x.IsDead)?.Address);
+}
+
 public class KardionPronoun : IGamePronoun
 {
     public string Name => "Kardion Target";
@@ -156,12 +190,12 @@ public class HealerPronoun : IGamePronoun
     public unsafe GameObject* GetGameObject() => PronounHelpers.GetPartyMemberByRoleID(4);
 }
 
-/*public class PureHealerPronoun : IGamePronoun
+public class PureHealerPronoun : IGamePronoun
 {
     public string Name => "Pure Healer";
     public string Placeholder => "<phealer>";
     public uint ID => 10_204;
-    public unsafe GameObject* GetGameObject() => ;
+    public unsafe GameObject* GetGameObject() => (GameObject*)PronounHelpers.GetPartyMembers().FirstOrDefault(x => x.ClassJob.Value.GetJob() is Job.CNJ or Job.WHM or Job.AST)?.Address;
 }
 
 public class BarrierHealerPronoun : IGamePronoun
@@ -169,7 +203,7 @@ public class BarrierHealerPronoun : IGamePronoun
     public string Name => "Barrier Healer";
     public string Placeholder => "<bhealer>";
     public uint ID => 10_205;
-    public unsafe GameObject* GetGameObject() => ;
+    public unsafe GameObject* GetGameObject() => (GameObject*)PronounHelpers.GetPartyMembers().FirstOrDefault(x => x.ClassJob.Value.GetJob() is Job.SCH or Job.SGE)?.Address;
 }
 
 public class DPSPronoun : IGamePronoun
@@ -177,8 +211,8 @@ public class DPSPronoun : IGamePronoun
     public string Name => "DPS";
     public string Placeholder => "<dps>";
     public uint ID => 10_206;
-    public unsafe GameObject* GetGameObject() => ;
-}*/
+    public unsafe GameObject* GetGameObject() => (GameObject*)PronounHelpers.GetPartyMembers().FirstOrDefault(x => x.ClassJob.Value.GetJob().IsDps())?.Address;
+}
 
 public class MeleeDPSPronoun : IGamePronoun
 {
