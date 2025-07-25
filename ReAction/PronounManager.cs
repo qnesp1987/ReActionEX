@@ -154,22 +154,7 @@ public class DeadPronoun : IGamePronoun
     public string Placeholder => "<dead>";
     public uint ID => 11_001;
 
-    public unsafe GameObject* GetGameObject()
-{
-    if (!Plugin.Config.EnablePronounManager)
-        return null;
-
-    var deadMember = PronounHelpers.GetPartyMembers().FirstOrDefault(x => x.IsDead);
-    if (deadMember == null)
-    {
-        PluginLog.Warning("[DeadPronoun] No dead party member found");
-        return null;
-    }
-
-    var address = deadMember.Address;
-    return (GameObject*)address;
-}
-
+    public unsafe GameObject* GetGameObject() => (GameObject*)(PronounHelpers.GetPartyMembers().FirstOrDefault(x => x.IsDead).Address);
 }
 
 public class DeadOutOfPartyPronoun : IGamePronoun
@@ -542,28 +527,9 @@ public static class PronounManager
         ? pronoun.Name
         : formalPronounIDName.TryGetValue((PronounID)id, out var name) ? name : ((PronounID)id).ToString();
 
-   public static unsafe GameObject* GetGameObjectFromID(uint id)
-{
-    if (!PluginModuleManager.GetModule<Modules.ActionStacks>().IsValid)
-        return null;
-
-    if (!Plugin.Config.EnablePronounManager)
-        return null;
-
-    if (id < MinimumCustomPronounID)
-        return Common.GetGameObjectFromPronounID((PronounID)id);
-
-    if (!CustomPronouns.TryGetValue(id, out var pronoun))
-        return null;
-
-    try
-    {
-        var obj = pronoun.GetGameObject();
-        return obj;
-    }
-    catch (Exception ex)
-    {
-        PluginLog.Error(ex, $"[PronounManager] GetGameObjectFromID failed for ID {id}");
-        return null;
-    }
+    public static unsafe GameObject* GetGameObjectFromID(uint id) => PluginModuleManager.GetModule<Modules.ActionStacks>().IsValid ?
+            id >= MinimumCustomPronounID && CustomPronouns.TryGetValue(id, out var pronoun)
+                ? pronoun.GetGameObject()
+                : Common.GetGameObjectFromPronounID((PronounID)id)
+            : null;
 }
