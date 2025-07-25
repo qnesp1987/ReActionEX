@@ -92,7 +92,6 @@ public class Configuration : PluginConfiguration, IPluginConfiguration
     public bool EnablePlayerNamesInCommands = false;
     public bool EnableQueueAdjustments = false;
     public bool EnableRequeuing = false;
-    public bool EnableSlidecastQueuing = false;
     public bool EnableGCDAdjustedQueueThreshold = false;
     public float QueueThreshold = 0.5f;
     public float QueueLockThreshold = 0.5f;

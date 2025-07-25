@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Plugin;
+using ECommons;
 
 namespace ReActionEx;
 
@@ -14,6 +15,7 @@ public class ReActionEx(IDalamudPluginInterface pluginInterface) : DalamudPlugin
     {
         Game.Initialize();
         PronounManager.Initialize();
+        ECommonsMain.Init(pluginInterface, this, Module.All);
 
 actionSheet = DalamudApi.DataManager.GetExcelSheet<Lumina.Excel.Sheets.Action>()?
     .Where(i => i.ClassJobCategory.RowId > 0 && (i.ActionCategory.RowId <= 4 || i.ActionCategory.RowId == 9 || i.ActionCategory.RowId == 15) && i.RowId > 8)
