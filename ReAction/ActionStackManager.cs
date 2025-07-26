@@ -56,7 +56,8 @@ public static unsafe class ActionStackManager
                     if (!stack.Actions.Any(action
                             => action.ID == 0
                                || action.ID == 1 && a.CanTargetHostile
-                               || action.ID == 2 && (a.CanTargetAlly || a.CanTargetParty)
+|| action.ID == 2 && (a.CanTargetAlly || a.CanTargetParty || a.CanTargetAlliance)
+
                                || (action.UseAdjustedID ? actionManager->CS.GetAdjustedActionId(action.ID) : action.ID) == adjustedActionID))
                         continue;
 

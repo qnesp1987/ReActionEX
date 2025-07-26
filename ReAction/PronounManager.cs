@@ -154,8 +154,11 @@ public class DeadPronoun : IGamePronoun
     public string Placeholder => "<dead>";
     public uint ID => 11_001;
 
-    public unsafe GameObject* GetGameObject() => (GameObject*)(PronounHelpers.GetPartyMembers().FirstOrDefault(x => x.IsDead).Address);
-}
+    public unsafe GameObject* GetGameObject()
+    {
+        var dead = PronounHelpers.GetPartyMembers().FirstOrDefault(x => x.IsDead);
+        return dead != null ? (GameObject*)dead.Address : null;
+    }
 
 public class DeadOutOfPartyPronoun : IGamePronoun
 {
