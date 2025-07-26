@@ -156,10 +156,10 @@ public class DeadPronoun : IGamePronoun
 
     public unsafe GameObject* GetGameObject()
     {
-        var dead = PronounHelpers.GetPartyMembers().FirstOrDefault(x => x.IsDead);
+        var dead = PronounHelpers.GetPartyMembers()?.FirstOrDefault(x => x.IsDead);
         return dead != null ? (GameObject*)dead.Address : null;
     }
-
+}
 public class DeadOutOfPartyPronoun : IGamePronoun
 {
     public string Name => "Dead Player (out of party)";
