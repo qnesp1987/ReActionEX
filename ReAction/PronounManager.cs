@@ -154,7 +154,7 @@ public class DeadPronoun : IGamePronoun
     public string Placeholder => "<dead>";
     public uint ID => 11_001;
 
-    public unsafe GameObject* GetGameObject() => (GameObject*)(PronounHelpers.GetPartyMembers().FirstOrDefault(x => x.IsDead).Address);
+    public unsafe GameObject* GetGameObject() => (GameObject*)(PronounHelpers.GetPartyMembers().FirstOrDefault(x => x.IsDead && !x.StatusList.Any(y => y.StatusId is 148 or 2648))?.Address);
 }
 
 public class DeadOutOfPartyPronoun : IGamePronoun
@@ -163,7 +163,7 @@ public class DeadOutOfPartyPronoun : IGamePronoun
     public string Placeholder => "<dpoop>";
     public uint ID => 11_000;
 
-    public unsafe GameObject* GetGameObject() => (GameObject*)(Svc.Objects.FirstOrDefault(x => !PronounHelpers.GetPartyMembers().Any(y => y.Address == x.Address) && x is IPlayerCharacter && x.IsDead)?.Address);
+    public unsafe GameObject* GetGameObject() => (GameObject*)(Svc.Objects.FirstOrDefault(x => !PronounHelpers.GetPartyMembers().Any(y => y.Address == x.Address) && x is IPlayerCharacter pc && x.IsDead && !pc.StatusList.Any(y => y.StatusId == 148))?.Address);
 }
 
 public class KardionPronoun : IGamePronoun
