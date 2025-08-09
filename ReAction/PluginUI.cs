@@ -5,7 +5,7 @@ using Dalamud.Interface;
 using Dalamud.Interface.Utility;
 using FFXIVClientStructs.FFXIV.Client.UI.Misc;
 using Hypostasis.Game.Structures;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using Lumina.Excel.Sheets;
 using Action = Lumina.Excel.Sheets.Action;
 
