@@ -148,6 +148,32 @@ public class LowestHPPPronoun : IGamePronoun
     }
 }
 
+public class LowestHPOutOfPartyPronoun : IGamePronoun
+{
+    public string Name => "Lowest HP Player (out of party)";
+    public string Placeholder => "<lowhpoop>";
+    public uint ID => 11_002;
+    public unsafe GameObject* GetGameObject()
+    {
+        var partyAddresses = Common.GetPartyMembers().ToHashSet();
+        var members = Svc.Objects.Where(x => !partyAddresses.Contains(x.Address) && x is IPlayerCharacter && PronounHelpers.GetHPPercent(x.Address) is > 0 and < 1);
+        return members.Any() ? (GameObject*)members.MinBy(x => PronounHelpers.GetHP(x.Address))?.Address : null;
+    }
+}
+
+public class LowestHPPOutOfPartyPronoun : IGamePronoun
+{
+    public string Name => "Lowest HPP Player (out of party)";
+    public string Placeholder => "<lowhppoop>";
+    public uint ID => 11_003;
+    public unsafe GameObject* GetGameObject()
+    {
+        var partyAddresses = Common.GetPartyMembers().ToHashSet();
+        var members = Svc.Objects.Where(x => !partyAddresses.Contains(x.Address) && x is IPlayerCharacter && PronounHelpers.GetHPPercent(x.Address) is > 0 and < 1);
+        return members.Any() ? (GameObject*)members.MinBy(x => PronounHelpers.GetHPPercent(x.Address))?.Address : null;
+    }
+}
+
 public class DeadPronoun : IGamePronoun
 {
     public string Name => "Dead Player (in party)";
